@@ -11,7 +11,7 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   return (
-    <nav className="mb-10 w-full bg-gray-500 text-white flex items-center justify-between px-4 md:px-16 lg:px-24 xl:px-32 py-4 z-50 shadow-md">
+    <nav className="mb-10 w-full bg-white text-black flex items-center justify-between px-4 md:px-16 lg:px-24 xl:px-32 py-4 z-50 shadow-md">
 
       {/* Logo */}
       <Link href="/" className="text-xl font-semibold">
