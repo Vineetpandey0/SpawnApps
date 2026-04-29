@@ -1,11 +1,27 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+
+const isProtectedRoute = createRouteMatcher([
+  "/dashboard(.*)",
+]);
 
 export default clerkMiddleware(async (auth, req) => {
-  // Protect all routes under /dashboard
-  if (req.nextUrl.pathname.startsWith('/dashboard')) {
+  const { pathname } = req.nextUrl;
+
+  // Skip Clerk internal routes
+  if (
+    pathname.startsWith("/sign-in") ||
+    pathname.startsWith("/sign-up") ||
+    pathname.startsWith("/sso-callback") ||
+    pathname.startsWith("/api/clerk")
+  ) {
+    return;
+  }
+
+  if (isProtectedRoute(req)) {
     await auth.protect();
   }
 });
+
 
 export const config = {
   matcher: [
