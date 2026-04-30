@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import {
   Loader2Icon,
@@ -10,22 +10,15 @@ import {
 } from "lucide-react";
 import Marquee from "react-fast-marquee";
 import { useEffect, useState } from "react";
+import { useConfigStore } from "@/store/configStore";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
+import axios from "axios";
 
 interface Prompt {
   label: string;
   prompt: string;
 }
-
-const categoryChips = [
-  "Tasks & Workflows",
-  "CRM & Sales",
-  "Content & Sites",
-  "Finance",
-  "Booking",
-  "HR & People",
-  "Project Mgmt",
-  "Marketing",
-];
 
 const prompts: Prompt[] = [
   {
@@ -90,18 +83,11 @@ export default function ActionHeroSection() {
   const [textIndex, setTextIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);
-  const [activeTab, setActiveTab] = useState<"apps" | "superagents">("apps");
+  const router = useRouter();
+  const {user} = useUser();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      alert("Service is currently unavailable. Please try again later.");
-      setLoading(false);
-      setPrompt("");
-      setSelected(null);
-    }, 10000);
-  };
+  const setConfigJSON = useConfigStore((s) => s.setConfigJSON)
+
 
   useEffect(() => {
     if (prompt) return;
@@ -126,7 +112,21 @@ export default function ActionHeroSection() {
     return () => clearTimeout(timeout);
   }, [charIndex, deleting, textIndex, prompt]);
 
-  const animatedPlaceholder = placeholders[textIndex].substring(0, charIndex);
+  const handleSubmit = async () => {
+    try{
+      setConfigJSON(prompt);
+      const res = await axios.post("/api/app/create-app", {
+        name: Date.now().toString(),
+        config_json: prompt,
+        userId: user?.id,
+      });
+      console.log(res)
+      router.push(`/apps/${res.data.id}`)
+    }
+    catch(err){
+      console.log(err)
+    }
+  }
 
   return (
     <section
@@ -145,11 +145,6 @@ export default function ActionHeroSection() {
 
       <div className="relative z-10 flex flex-col items-center w-full px-4">
 
-        {/* Badge */}
-        <div className="flex items-center gap-2 text-gray-500 mb-4">
-          <TrendingUpIcon className="w-4 h-4" />
-          <span className="text-sm">Build Apps with just a prompt</span>
-        </div>
 
         {/* Heading */}
         <h1 className="text-center text-5xl md:text-6xl font-semibold text-gray-900 max-w-2xl leading-tight mb-3">
@@ -163,7 +158,7 @@ export default function ActionHeroSection() {
 
         {/* Prompt Box */}
         <form
-          onSubmit={handleSubmit}
+          onSubmit={() => { }}
           className="w-full max-w-2xl bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden focus-within:ring-2 focus-within:ring-gray-300 transition-shadow"
         >
           <textarea
@@ -178,18 +173,10 @@ export default function ActionHeroSection() {
 
           <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50/50">
             <div className="flex items-center gap-2">
-              {/* File upload */}
-              <label
-                htmlFor="file-upload"
-                className="p-1.5 rounded-md border border-gray-200 text-gray-400 cursor-pointer hover:bg-gray-100 hover:text-gray-600 transition-colors"
-                title="Upload file"
-              >
-                <input type="file" id="file-upload" hidden />
-                <UploadCloudIcon className="w-4 h-4" />
-              </label>
+              
 
               {/* Settings */}
-              <button
+              {/* <button
                 type="button"
                 className="p-1.5 rounded-md border border-gray-200 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
                 title="Options"
@@ -199,34 +186,15 @@ export default function ActionHeroSection() {
                   <circle cx="8" cy="8" r="1" fill="currentColor" />
                   <circle cx="8" cy="12" r="1" fill="currentColor" />
                 </svg>
-              </button>
+              </button> */}
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Plan toggle */}
-              <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                <span>Plan</span>
-                <button
-                  type="button"
-                  className="w-9 h-5 rounded-full bg-gray-200 relative transition-colors hover:bg-gray-300"
-                >
-                  <span className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform" />
-                </button>
-              </div>
-
-              {/* Mic */}
-              <button
-                type="button"
-                className="p-1.5 rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
-                title="Voice input"
-              >
-                <MicIcon className="w-4 h-4" />
-              </button>
 
               {/* Submit */}
               <button
                 disabled={loading}
-                type="submit"
+                onClick={handleSubmit}
                 className={`
                   inline-flex items-center justify-center gap-2 px-4 h-9 rounded-xl
                   bg-gray-900 text-white text-sm font-medium
@@ -245,41 +213,6 @@ export default function ActionHeroSection() {
             </div>
           </div>
         </form>
-
-        {/* Suggestion prompt */}
-        <p className="text-sm text-gray-500 mt-4 mb-3">What would you like to create?</p>
-
-        {/* Category chips */}
-        <div className="flex flex-wrap justify-center gap-2 max-w-xl">
-          {categoryChips.map((chip, i) => (
-            <button
-              key={chip}
-              onClick={() => {
-                const matched = prompts.find((p) =>
-                  p.label.toLowerCase().includes(chip.toLowerCase().split(" ")[0])
-                );
-                if (matched) {
-                  setPrompt(matched.prompt);
-                  setSelected(matched.label);
-                }
-              }}
-              className={`px-3.5 py-1.5 rounded-full border text-sm transition-all
-                ${selected === chip
-                  ? "bg-gray-200 border-gray-300 text-gray-800"
-                  : "bg-white/80 border-gray-200 text-gray-600 hover:bg-white hover:border-gray-300 hover:shadow-sm"
-                }
-              `}
-            >
-              {i === categoryChips.length - 1 ? (
-                <span className="flex items-center gap-1">
-                  <span>···</span> More
-                </span>
-              ) : (
-                chip
-              )}
-            </button>
-          ))}
-        </div>
 
         {/* Marquee of prompt suggestions */}
         <Marquee
@@ -305,7 +238,7 @@ export default function ActionHeroSection() {
                   }
                 `}
               >
-                <SparklesIcon className="w-3 h-3 inline mr-1.5 text-orange-400" />
+                <SparklesIcon className="w-3 h-3 inline mr-1.5 text-blue-400" />
                 {item.label}
               </button>
             );
