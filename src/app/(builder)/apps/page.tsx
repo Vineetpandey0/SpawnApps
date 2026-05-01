@@ -8,7 +8,7 @@ export default function Apps() {
     useEffect(()=>{
         const fetchApps = async() => {
             try{
-                const res = await axios.get("/app/get-apps")
+                const res = await axios.get("/api/app/get-apps")
                 setApps(res.data)
             }
             catch(err){
@@ -23,7 +23,7 @@ export default function Apps() {
                 apps.map((app : any) => (
                     <div key={app.id}>
                         <h1>{app.name}</h1>
-                        <p>{app.createdAt.toLocaleDateString()}</p>
+                        <p>{app.createdAt}</p>
                     </div>
                 ))
             }
