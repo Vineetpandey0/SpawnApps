@@ -17,8 +17,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <AuthGuard>
       <body className="min-h-screen bg-white text-gray-900 antialiased">
-        <AuthGuard>
         <SidebarProvider defaultOpen={true}>
 
           {/* Fixed Top Navbar */}
@@ -33,8 +33,8 @@ export default function RootLayout({
           </SidebarInset>
 
         </SidebarProvider>
-        </AuthGuard>
       </body>
+      </AuthGuard>
     </html>
   );
 }
