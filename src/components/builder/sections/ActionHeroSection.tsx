@@ -116,7 +116,7 @@ export default function ActionHeroSection() {
     try{
       setConfigJSON(prompt);
       const res = await axios.post("/api/app/create-app", {
-        name: Date.now().toString(),
+        name: prompt.substring(0, 20) + (prompt.length > 20 ? "..." : ""),
         config_json: prompt,
         userId: user?.id,
       });

@@ -2,6 +2,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react'
 import { LayoutGrid, ArrowRight } from 'lucide-react'
+import Link from 'next/link';
 
 export default function Apps() {
     const [apps, setApps] = useState<any[]>([])
@@ -82,40 +83,46 @@ export default function Apps() {
 
                         {/* Rows */}
                         <div className="divide-y divide-gray-100">
-                            {apps.map((app: any) => (
-                                <div
+                            {apps.map((app) => (
+                                <Link
+                                    href={`/apps/${app.id}`}
                                     key={app.id}
-                                    className="grid grid-cols-[2fr_1.5fr_2fr_auto] items-center px-4 py-4 hover:bg-gray-100 transition-colors duration-100 rounded-lg group cursor-pointer"
+                                    className="block"
                                 >
-                                    {/* Name */}
-                                    <div className="flex items-center gap-3">
-                                        
-                                        <span className="text-sm font-medium text-gray-800 truncate">{app.name}</span>
+                                    <div className="grid grid-cols-[2fr_1.5fr_2fr_auto] items-center px-4 py-4 hover:bg-gray-100 transition-colors duration-100 rounded-lg group cursor-pointer">
+
+                                        {/* Name */}
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-sm font-medium text-gray-800 truncate">
+                                                {app.name}
+                                            </span>
+                                        </div>
+
+                                        {/* Created At */}
+                                        <span className="text-sm text-gray-400 font-normal">
+                                            {formatDate(app.createdAt)}
+                                        </span>
+
+                                        {/* Config */}
+                                        <div className="max-w-xs">
+                                            {app.config_json ? (
+                                                <code className="text-xs font-mono text-gray-500 bg-gray-100 border border-gray-200 rounded px-2 py-0.5 truncate block max-w-[240px]">
+                                                    {typeof app.config_json === 'object'
+                                                        ? JSON.stringify(app.config_json)
+                                                        : app.config_json}
+                                                </code>
+                                            ) : (
+                                                <span className="text-sm text-gray-300">—</span>
+                                            )}
+                                        </div>
+
+                                        {/* Arrow */}
+                                        <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors duration-150" />
                                     </div>
-
-                                    {/* Created At */}
-                                    <span className="text-sm text-gray-400 font-normal">
-                                        {formatDate(app.createdAt)}
-                                    </span>
-
-                                    {/* Config */}
-                                    <div className="max-w-xs">
-                                        {app.config_json ? (
-                                            <code className="text-xs font-mono text-gray-500 bg-gray-100 border border-gray-200 rounded px-2 py-0.5 truncate block max-w-[240px]">
-                                                {typeof app.config_json === 'object'
-                                                    ? JSON.stringify(app.config_json)
-                                                    : app.config_json}
-                                            </code>
-                                        ) : (
-                                            <span className="text-sm text-gray-300">—</span>
-                                        )}
-                                    </div>
-
-                                    {/* Arrow */}
-                                    <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors duration-150" />
-                                </div>
+                                </Link>
                             ))}
                         </div>
+
                     </div>
                 )}
             </div>
