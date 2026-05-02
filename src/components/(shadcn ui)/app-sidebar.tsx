@@ -82,7 +82,7 @@ export function AppSidebar() {
 
 
         {/* Recents */}
-        <SidebarGroup className="px-2 mt-2">
+        <SidebarGroup className="px-2 mt-2 overscroll-auto">
           <SidebarGroupLabel
             className="flex items-center justify-between cursor-pointer select-none px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide hover:text-gray-700 transition-colors"
             onClick={() => setRecentsOpen((v) => !v)}
@@ -97,7 +97,7 @@ export function AppSidebar() {
           </SidebarGroupLabel>
 
           {recentsOpen && (
-            <div className="mt-0.5">
+            <div className="mt-0.5 flex flex-col-reverse">
               {recentItems.map((item) => { 
                 const isActive = pathname === item.href;
                 return(
@@ -105,16 +105,14 @@ export function AppSidebar() {
                   key={item.label}
                   href={item.href}
                   className={`
-                    flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg transition-colors
+                    flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg transition-colors 
                     ${isActive
                       ? "bg-gray-200 text-gray-900 font-medium"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-black"
                     }
                   `}
                 >
-                  <div className="w-5 h-5 rounded bg-blue-500 flex items-center justify-center shrink-0">
-                    <item.icon className="w-3 h-3 text-white" />
-                  </div>
+                  
                   {item.label}
                 </Link>
               )})}
