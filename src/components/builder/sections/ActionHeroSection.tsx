@@ -14,6 +14,7 @@ import { useConfigStore } from "@/store/configStore";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
+import { useAppStore } from "@/store/appStore";
 
 interface Prompt {
   label: string;
@@ -83,6 +84,7 @@ export default function ActionHeroSection() {
   const [textIndex, setTextIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);
+  const { appendAppData } = useAppStore();
   const router = useRouter();
   const {user} = useUser();
 
@@ -121,7 +123,8 @@ export default function ActionHeroSection() {
         config_json: prompt,
         userId: user?.id,
       });
-      console.log(res)
+      console.log(res.data)
+      appendAppData(res.data.app);
       router.push(`/apps/${res.data.app.id}`)
     }
     catch(err){

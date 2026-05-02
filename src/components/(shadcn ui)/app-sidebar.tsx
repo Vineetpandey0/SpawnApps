@@ -107,7 +107,7 @@ export function AppSidebar() {
                     className={`
                       flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg transition-colors
                       ${isActive
-                        ? "bg-gray-200 text-gray-900 font-medium"
+                        ? "bg-gray-200 text-black font-medium"
                         : "text-gray-600 hover:bg-gray-100 hover:text-black"
                       }
                     `}
