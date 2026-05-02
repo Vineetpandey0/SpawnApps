@@ -3,16 +3,19 @@ import axios from 'axios';
 import { useEffect, useState } from 'react'
 import { LayoutGrid, ArrowRight } from 'lucide-react'
 import Link from 'next/link';
+import { useAppStore } from '@/store/appStore';
 
 export default function Apps() {
     const [apps, setApps] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
+    const { setAppData } = useAppStore();
 
     useEffect(() => {
         const fetchApps = async () => {
             try {
                 const res = await axios.get("/api/app/get-apps")
                 setApps(res.data)
+                setAppData(res.data);
             } catch (err) {
                 console.log(err)
             } finally {
