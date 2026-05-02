@@ -14,9 +14,7 @@ export async function GET(req: NextRequest) {
       where: {
         userId,
       },
-      include: {
-        records: true,
-      },
+    
     });
 
     return NextResponse.json(apps, { status: 200 });
