@@ -38,6 +38,7 @@ export function AppSidebar() {
 
   
   const recentItems = appData.map((app: any) => ({
+    id: app.id,
     label: app.name,
     href: `/apps/${app.id}`,
     icon: FileText,
@@ -102,7 +103,7 @@ export function AppSidebar() {
                 const isActive = pathname === item.href;
                 return (
                   <Link
-                    key={item.label}
+                    key={item.id}
                     href={item.href}
                     className={`
                       flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg transition-colors
