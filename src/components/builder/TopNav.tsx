@@ -11,6 +11,7 @@ import {
 import { useSidebar } from "@/components/ui/sidebar";
 import { useUser, SignOutButton } from "@clerk/nextjs";
 import { useState, useRef, useEffect } from "react";
+import Logo from "../logo";
 
 export default function TopNav() {
   const { toggleSidebar, open } = useSidebar();
@@ -48,15 +49,13 @@ export default function TopNav() {
 
       {/* Logo */}
       <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-lg bg-orange-500 flex items-center justify-center text-white text-xs font-bold">
-          AB
-        </div>
+        <Logo />
       </div>
 
       {/* Workspace */}
-      <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-gray-100 transition max-w-[180px]">
-        <span className="text-sm font-medium text-gray-800 truncate">
-          {user?.firstName || "Workspace"}
+      <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-gray-100 transition ">
+        <span className="text-sm font-medium text-gray-800 ">
+          {user?.firstName + " 's Workspace"}
         </span>
         <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
       </button>

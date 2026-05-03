@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { FaGithub } from "react-icons/fa";
 import { Edu_NSW_ACT_Foundation } from "next/font/google";
 import { SparklesIcon, MenuIcon, XIcon } from "lucide-react";
+import Logo from "../logo";
 
 export const brandFont = Edu_NSW_ACT_Foundation({
   subsets: ["latin"],
@@ -37,9 +38,9 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className={`${brandFont.className} text-3xl font-bold tracking-tight text-gray-900 hover:opacity-80 transition-opacity`}
+          className={`${brandFont.className} flex text-3xl font-bold tracking-tight text-gray-900 hover:opacity-80 transition-opacity`}
         >
-          Spawn<span className="text-indigo-600">.dev</span>
+          <Logo />
         </Link>
 
         {/* Desktop Actions */}
