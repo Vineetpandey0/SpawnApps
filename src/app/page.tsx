@@ -7,6 +7,7 @@ import React, { useEffect } from 'react'
 import Footer from '@/components/builder/Footer'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
+import Features from '@/components/builder/sections/features'
 
 function page() {
   const {user} = useUser();
@@ -17,9 +18,10 @@ function page() {
     }
   },[user])
   return (
-    <div>
+    <div className="bg-white">
       <GlobalNavbar />
       <HeroSection />
+      <Features />
       <BuildProcess />
       <Footer />
     </div>
