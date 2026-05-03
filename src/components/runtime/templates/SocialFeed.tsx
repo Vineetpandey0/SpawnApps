@@ -44,7 +44,7 @@ export default function SocialFeed({ data }: { data?: SocialData }) {
             <div className="w-8 h-8 bg-blue-500 rounded-lg shrink-0"></div>
             <span className="hidden xl:block font-bold text-xl ml-3 text-white tracking-tight">SocialLink</span>
           </div>
-          
+
           {[
             { icon: <Home className="w-7 h-7" />, label: "Home", active: true },
             { icon: <Search className="w-7 h-7" />, label: "Explore" },
@@ -62,13 +62,13 @@ export default function SocialFeed({ data }: { data?: SocialData }) {
               </span>
             </div>
           ))}
-          
+
           <button className="w-12 h-12 xl:w-full xl:h-14 mt-4 bg-blue-500 hover:bg-blue-600 rounded-full text-white font-bold text-lg shadow-lg shadow-blue-500/20 transition-colors flex items-center justify-center">
             <span className="xl:hidden">+</span>
             <span className="hidden xl:block">Post</span>
           </button>
         </div>
-        
+
         <div className="w-12 h-12 xl:w-full rounded-full hover:bg-slate-900 flex items-center xl:px-3 xl:py-2 cursor-pointer transition-colors">
           <div className="w-10 h-10 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-full shrink-0 flex items-center justify-center text-white font-bold">
             {currentUser.charAt(0)}
@@ -88,7 +88,7 @@ export default function SocialFeed({ data }: { data?: SocialData }) {
           <h1 className="text-xl font-bold p-4 text-white">Home</h1>
           <div className="flex border-b border-slate-800">
             {['For You', 'Following'].map(tab => (
-              <button 
+              <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className="flex-1 hover:bg-slate-900/50 transition-colors relative flex items-center justify-center py-4 font-medium"
@@ -108,8 +108,8 @@ export default function SocialFeed({ data }: { data?: SocialData }) {
             {currentUser.charAt(0)}
           </div>
           <div className="flex-1">
-            <textarea 
-              className="w-full bg-transparent text-xl placeholder-slate-600 outline-none resize-none mt-2 text-white" 
+            <textarea
+              className="w-full bg-transparent text-xl placeholder-slate-600 outline-none resize-none mt-2 text-white"
               placeholder="What is happening?!"
               rows={2}
             ></textarea>
@@ -143,7 +143,7 @@ export default function SocialFeed({ data }: { data?: SocialData }) {
                         <MoreHorizontal className="w-4 h-4" />
                       </button>
                     </div>
-                    
+
                     <p className="text-white text-[15px] leading-relaxed whitespace-pre-wrap break-words mb-3">
                       {post.content}
                     </p>
@@ -162,7 +162,7 @@ export default function SocialFeed({ data }: { data?: SocialData }) {
                         </div>
                         <span className="text-sm group-hover/btn:text-blue-500 transition-colors">{post.comments || 0}</span>
                       </button>
-                      
+
                       <button className="flex items-center gap-2 group/btn">
                         <div className="p-2 rounded-full group-hover/btn:bg-green-500/10 group-hover/btn:text-green-500 transition-colors">
                           <Share2 className="w-4.5 h-4.5" />
@@ -170,7 +170,7 @@ export default function SocialFeed({ data }: { data?: SocialData }) {
                         <span className="text-sm group-hover/btn:text-green-500 transition-colors">Repost</span>
                       </button>
 
-                      <button 
+                      <button
                         onClick={(e) => { e.stopPropagation(); toggleLike(post.id); }}
                         className="flex items-center gap-2 group/btn"
                       >

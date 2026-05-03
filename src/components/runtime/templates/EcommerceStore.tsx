@@ -105,9 +105,12 @@ export default function EcommerceStore({ data }: { data?: EcommerceData }) {
         /* Navbar */
         .ec-nav {
           background: #FAFAFA; border-bottom: 1px solid #E8E8E8;
-          padding: 0 40px; height: 64px;
+          height: 64px; position: sticky; top: 0; z-index: 50;
+        }
+        .ec-nav-inner {
+          max-width: 1400px; margin: 0 auto; padding: 0 40px; h-full;
           display: flex; align-items: center; justify-content: space-between;
-          position: sticky; top: 0; z-index: 50;
+          height: 100%;
         }
         .ec-nav-left { display: flex; align-items: center; gap: 32px; }
         .ec-menu-btn { background: none; border: none; cursor: pointer; padding: 8px; color: #111; }
@@ -370,7 +373,8 @@ export default function EcommerceStore({ data }: { data?: EcommerceData }) {
         <div className="ec-announce">Free shipping on orders over $250 · Returns within 30 days</div>
         
         <nav className="ec-nav">
-          <div className="ec-nav-left">
+          <div className="ec-nav-inner">
+            <div className="ec-nav-left">
             <button className="ec-menu-btn"><Menu size={20} /></button>
             <div className="ec-logo">{storeName}</div>
           </div>
@@ -387,7 +391,8 @@ export default function EcommerceStore({ data }: { data?: EcommerceData }) {
               {cartCount > 0 && <span className="ec-cart-badge">{cartCount}</span>}
             </button>
           </div>
-        </nav>
+        </div>
+      </nav>
 
         <div className="ec-hero">
           <div className="ec-hero-left">

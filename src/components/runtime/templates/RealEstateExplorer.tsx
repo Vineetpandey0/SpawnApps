@@ -38,15 +38,17 @@ export default function RealEstateExplorer({ data }: { data?: RealEstateData }) 
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-[#1A1F2C] font-sans pb-24">
       {/* Navbar Minimal */}
-      <nav className="bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center sticky top-0 z-40">
-        <div className="flex items-center gap-2">
-          <Home className="w-6 h-6 text-emerald-600" />
-          <span className="font-bold text-xl tracking-tight">LuxeEstate</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <button className="text-sm font-medium text-gray-600 hover:text-gray-900">Saved ({savedProps.size})</button>
-          <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-700 font-bold text-sm">
-            US
+      <nav className="bg-white border-b border-gray-100 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <Home className="w-6 h-6 text-emerald-600" />
+            <span className="font-bold text-xl tracking-tight">LuxeEstate</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <button className="text-sm font-medium text-gray-600 hover:text-gray-900">Saved ({savedProps.size})</button>
+            <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-700 font-bold text-sm">
+              US
+            </div>
           </div>
         </div>
       </nav>

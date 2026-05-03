@@ -16,12 +16,12 @@ The JSON object must have this exact structure:
 
 CRITICAL RULES FOR "type":
 You must choose the "type" for each page from the following supported templates:
-- "landing" (Generic marketing/landing page)
+- "landing" (if no other pages match)
 - "college_discovery" (University/college search)
 - "real_estate" (Property listings or any other related)
 - "ecommerce" (Online store with products)
 - "saas_dashboard" (Analytics, metrics, charts)
-- "job_board" (Job listings, careers)
+- "job_board" (Job listings, careers, any kind of job related website)
 - "social_feed" (Twitter-like feed, posts)
 - "booking_system" (Appointments, scheduling)
 - "portfolio_gallery" (Personal portfolio, projects)

@@ -25,7 +25,8 @@ export default async function AppRenderer({
 
   if (!page) return <div>Page not found</div>
 
-  const Component = componentRegistry[page.type]
+  const pageType = page.type?.toLowerCase().trim()
+  const Component = componentRegistry[pageType] || componentRegistry[page.type]
   if (!Component) return <div>Unsupported page type: {page.type}</div>
 
   let data: any = {}
