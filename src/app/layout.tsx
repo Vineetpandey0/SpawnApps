@@ -5,6 +5,7 @@ import "./globals.css";
 import LenisScroll from "@/components/lenis";
 import Providers from "./themeProvider";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "sonner";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -28,9 +29,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "App Builder",
+  title: "Spawn Apps",
   description: "Generated Apps with just a prompt",
 };
+
 
 export default function RootLayout({
   children,
@@ -47,6 +49,7 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col">
         <Providers>
           <LenisScroll />
+          <Toaster richColors position="top-center" />
             {children}
         </Providers>
       </body>

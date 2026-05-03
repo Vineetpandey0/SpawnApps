@@ -11,6 +11,7 @@ interface Product {
   rating?: number | { rate?: number; count?: number; value?: number; score?: number };
   reviews?: number;
   inStock?: boolean;
+  image?: string;
 }
 
 interface EcommerceData {
@@ -211,8 +212,8 @@ export default function EcommerceStore({ data }: { data?: EcommerceData }) {
           aspect-ratio: 3/4; position: relative;
           margin-bottom: 16px; overflow: hidden;
         }
-        .ec-product-img-bg { position: absolute; inset: 0; transition: transform 0.5s ease; }
-        .ec-product:hover .ec-product-img-bg { transform: scale(1.04); }
+        .ec-product-img-bg, .ec-product-actual-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .ec-product:hover .ec-product-img-bg, .ec-product:hover .ec-product-actual-img { transform: scale(1.04); }
         .ec-product-overlay {
           position: absolute; inset: 0;
           display: flex; flex-direction: column;
@@ -419,7 +420,11 @@ export default function EcommerceStore({ data }: { data?: EcommerceData }) {
             {filteredProducts?.map((product, pi) => (
               <div key={product.id} className="ec-product">
                 <div className="ec-product-img">
-                  <div className="ec-product-img-bg" style={{background: patterns[pi % patterns.length]}}></div>
+                  {product.image ? (
+                    <img src={product.image} alt={product.name} className="ec-product-actual-img" />
+                  ) : (
+                    <div className="ec-product-img-bg" style={{background: patterns[pi % patterns.length]}}></div>
+                  )}
                   <div className="ec-product-overlay">
                     <button className={`ec-wish-btn ${wishlist.has(product.id) ? 'wished' : ''}`} onClick={() => toggleWish(product.id)}>
                       <Heart size={14} fill={wishlist.has(product.id) ? '#EF4444' : 'none'} />
@@ -465,7 +470,13 @@ export default function EcommerceStore({ data }: { data?: EcommerceData }) {
                 ) : (
                   cart.map((item, idx) => (
                     <div key={idx} className="ec-cart-item">
-                      <div className="ec-item-img" style={{background: patterns[products.findIndex(p=>p.id===item.product.id) % patterns.length]}}></div>
+                      <div className="ec-item-img">
+                        {item.product.image ? (
+                          <img src={item.product.image} alt={item.product.name} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+                        ) : (
+                          <div style={{width:'100%',height:'100%',background: patterns[products.findIndex(p=>p.id===item.product.id) % patterns.length]}}></div>
+                        )}
+                      </div>
                       <div className="ec-item-info">
                         <div className="ec-item-name">{item.product.name}</div>
                         <div className="ec-item-cat">{item.product.category}</div>
