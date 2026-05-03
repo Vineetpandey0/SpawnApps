@@ -4,8 +4,8 @@ import { DATA_GENERATION_SYSTEM_PROMPT } from "./runtimeDataPrompt";
 
 import { cookies } from "next/headers";
 
-function getGeminiClient() {
-  const cookieStore = cookies();
+async function getGeminiClient() {
+  const cookieStore = await cookies();
   const userKey = cookieStore.get("gemini_api_key")?.value;
   const apiKey = userKey || process.env.GOOGLE_API_KEY!;
   
@@ -13,7 +13,7 @@ function getGeminiClient() {
 }
 
 export async function callGemini(input: string): Promise<string> {
-  const ai = getGeminiClient();
+  const ai = await getGeminiClient();
   const res = await ai.models.generateContent({
     model: "gemini-2.5-flash", 
     contents: [
@@ -33,7 +33,7 @@ export async function callGemini(input: string): Promise<string> {
 }
 
 export async function callGeminiForData(config: any, page: any): Promise<any> {
-  const ai = getGeminiClient();
+  const ai = await getGeminiClient();
   const inputPayload = JSON.stringify({ appConfig: config, page: page }, null, 2);
   
   const res = await ai.models.generateContent({
