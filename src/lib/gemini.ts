@@ -27,8 +27,10 @@ export async function callGemini(input: string): Promise<string> {
         temperature: 0.2, 
     }
   });
-  console.log(res.data)
 
+  if (!res.text) {
+    throw new Error("Gemini response text is undefined");
+  }
   return res.text; 
 }
 
