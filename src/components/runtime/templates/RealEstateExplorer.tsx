@@ -36,15 +36,15 @@ export default function RealEstateExplorer({ data }: { data: any }) {
 
       {/* Header */}
       <div className="px-6 py-12 md:py-20 max-w-7xl mx-auto">
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">{title}</h1>
-        <p className="text-gray-500 text-lg max-w-2xl mb-10">Find your perfect home among our curated collection of premium real estate. From modern apartments to luxurious villas.</p>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4">{title}</h1>
+        <p className="text-gray-500 text-base md:text-lg max-w-2xl mb-10">Find your perfect home among our curated collection of premium real estate. From modern apartments to luxurious villas.</p>
         
         <div className="flex flex-col md:flex-row gap-4 mb-12">
           <div className="flex-1 relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input 
               type="text" 
-              placeholder="Search by city, neighborhood, or address..." 
+              placeholder="Search city, neighborhood..." 
               className="w-full pl-12 pr-4 py-4 rounded-2xl border-0 ring-1 ring-gray-200 shadow-sm focus:ring-2 focus:ring-emerald-500 transition-shadow text-base"
             />
           </div>

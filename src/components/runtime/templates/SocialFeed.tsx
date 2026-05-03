@@ -193,6 +193,14 @@ export default function SocialFeed({ data }: { data: any }) {
           ))}
         </div>
       </aside>
+
+      {/* Mobile Bottom Nav */}
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 bg-black border-t border-slate-800 flex justify-around py-3 z-30">
+        <Home className="w-7 h-7 text-white" />
+        <Search className="w-7 h-7 text-slate-400" />
+        <Bell className="w-7 h-7 text-slate-400" />
+        <Mail className="w-7 h-7 text-slate-400" />
+      </nav>
     </div>
   );
 }

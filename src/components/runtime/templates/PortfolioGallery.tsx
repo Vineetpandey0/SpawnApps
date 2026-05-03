@@ -27,11 +27,11 @@ export default function PortfolioGallery({ data }: { data: any }) {
           <div className="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center font-bold text-2xl text-zinc-300 mb-8 border border-zinc-700">
             {authorName.charAt(0)}
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-6 leading-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tighter mb-6 leading-tight">
             Hi, I'm {authorName}.<br/>
-            <span className="text-zinc-500">I build digital experiences.</span>
+            <span className="text-zinc-500 text-3xl sm:text-4xl md:text-6xl">I build digital experiences.</span>
           </h1>
-          <p className="text-lg md:text-xl text-zinc-400 leading-relaxed max-w-xl">
+          <p className="text-base md:text-xl text-zinc-400 leading-relaxed max-w-xl">
             {bio || "A passionate software engineer specializing in building exceptional digital experiences. Currently focused on building accessible, human-centered products."}
           </p>
         </div>
@@ -96,8 +96,8 @@ export default function PortfolioGallery({ data }: { data: any }) {
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold mb-3 group-hover:text-zinc-300 transition-colors">{project.title}</h3>
-                <p className="text-zinc-400 leading-relaxed mb-5 line-clamp-2">
+                <h3 className="text-xl md:text-2xl font-bold mb-3 group-hover:text-zinc-300 transition-colors">{project.title}</h3>
+                <p className="text-zinc-400 text-sm md:text-base leading-relaxed mb-5 line-clamp-2">
                   {project.description}
                 </p>
                 <div className="flex flex-wrap gap-2">

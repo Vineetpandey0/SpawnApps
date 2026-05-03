@@ -1,222 +1,519 @@
-"use client";
+'use client'
 
 import React, { useState } from 'react';
-import { ShoppingCart, Search, Star, Heart, Menu, Plus, Minus, X, Check, Trash2, ArrowRight } from 'lucide-react';
+import { ShoppingCart, Search, Star, Heart, Menu, Plus, Minus, X, Trash2, ArrowRight } from 'lucide-react';
 
-export default function EcommerceStore({ data }: { data: any }) {
-  const [cart, setCart] = useState<{product: any, qty: number}[]>([]);
+const sampleData = {
+  storeName: "ARCO",
+  categories: ["Outerwear", "Knitwear", "Trousers", "Accessories"],
+  products: [
+    { id: "p1", name: "Structured Wool Coat", category: "Outerwear", price: 495, rating: 4.9, reviews: 124, inStock: true },
+    { id: "p2", name: "Merino Crewneck", category: "Knitwear", price: 185, rating: 4.8, reviews: 89, inStock: true },
+    { id: "p3", name: "Wide-Leg Trousers", category: "Trousers", price: 245, rating: 4.7, reviews: 67, inStock: true },
+    { id: "p4", name: "Cashmere Turtleneck", category: "Knitwear", price: 320, rating: 4.9, reviews: 103, inStock: true },
+    { id: "p5", name: "Leather Belt", category: "Accessories", price: 95, rating: 4.6, reviews: 51, inStock: false },
+    { id: "p6", name: "Technical Parka", category: "Outerwear", price: 595, rating: 4.8, reviews: 78, inStock: true },
+    { id: "p7", name: "Slim Chinos", category: "Trousers", price: 165, rating: 4.7, reviews: 142, inStock: true },
+    { id: "p8", name: "Canvas Tote", category: "Accessories", price: 75, rating: 4.5, reviews: 203, inStock: true }
+  ]
+};
+
+const patterns = [
+  'repeating-linear-gradient(45deg,#f5f5f5,#f5f5f5 10px,#efefef 10px,#efefef 20px)',
+  'repeating-linear-gradient(-45deg,#f0f0f0,#f0f0f0 8px,#e8e8e8 8px,#e8e8e8 16px)',
+  'radial-gradient(circle at 30% 70%,#e8e8e8 0%,#f5f5f5 60%)',
+  'linear-gradient(135deg,#eeeeee 0%,#f8f8f8 50%,#e5e5e5 100%)',
+  'repeating-linear-gradient(0deg,#f0f0f0,#f0f0f0 4px,#fafafa 4px,#fafafa 20px)',
+  'radial-gradient(ellipse at 70% 30%,#e5e5e5 0%,#f5f5f5 60%)',
+  'repeating-linear-gradient(90deg,#f0f0f0,#f0f0f0 2px,#fafafa 2px,#fafafa 24px)',
+  'linear-gradient(to bottom right,#e8e8e8,#f8f8f8 40%,#eeeeee)',
+];
+
+export default function EcommerceStore({ data }) {
+  const safeData = data || sampleData;
+  const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
+  const [wishlist, setWishlist] = useState(new Set());
 
-  if (!data) return <div className="p-8">Loading store...</div>;
+  const storeName = safeData.storeName || safeData.platformName || safeData.name || sampleData.storeName;
+  const categories = safeData.categories || safeData.collections || sampleData.categories;
+  const products = safeData.products || safeData.inventory || safeData.items || sampleData.products;
 
-  const { storeName = "ModernShop", categories = [], products = [] } = data;
   const allCategories = ["All", ...categories];
+  const filteredProducts = products.filter(p => activeCategory === "All" || p.category?.toLowerCase() === activeCategory.toLowerCase());
 
-  const filteredProducts = products.filter((p: any) => 
-    activeCategory === "All" || p.category?.toLowerCase() === activeCategory.toLowerCase()
-  );
-
-  const addToCart = (product: any) => {
+  const addToCart = (product) => {
     setCart(prev => {
-      const existing = prev.find(item => item.product.id === product.id);
-      if (existing) {
-        return prev.map(item => item.product.id === product.id ? { ...item, qty: item.qty + 1 } : item);
-      }
+      const existing = prev.find(i => i.product.id === product.id);
+      if (existing) return prev.map(i => i.product.id === product.id ? { ...i, qty: i.qty + 1 } : i);
       return [...prev, { product, qty: 1 }];
     });
     setIsCartOpen(true);
   };
-
-  const updateQty = (id: string, delta: number) => {
-    setCart(prev => prev.map(item => {
-      if (item.product.id === id) {
-        const newQty = Math.max(1, item.qty + delta);
-        return { ...item, qty: newQty };
-      }
-      return item;
-    }));
-  };
-
-  const removeCartItem = (id: string) => {
-    setCart(prev => prev.filter(item => item.product.id !== id));
-  };
-
-  const cartTotal = cart.reduce((total, item) => total + (item.product.price * item.qty), 0);
+  const updateQty = (id, delta) => setCart(prev => prev.map(i => i.product.id === id ? { ...i, qty: Math.max(1, i.qty + delta) } : i));
+  const removeItem = (id) => setCart(prev => prev.filter(i => i.product.id !== id));
+  const toggleWish = (id) => { const n = new Set(wishlist); n.has(id) ? n.delete(id) : n.add(id); setWishlist(n); };
+  const cartTotal = cart.reduce((t, i) => t + i.product.price * i.qty, 0);
+  const cartCount = cart.reduce((t, i) => t + i.qty, 0);
 
   return (
-    <div className="min-h-screen bg-neutral-50 text-neutral-900 font-sans pb-24 relative overflow-x-hidden">
-      {/* Navbar */}
-      <nav className="bg-white border-b border-neutral-200 px-4 sm:px-8 py-5 flex justify-between items-center sticky top-0 z-40 shadow-sm">
-        <div className="flex items-center gap-4">
-          <button className="md:hidden p-2 -ml-2 text-neutral-600 hover:bg-neutral-100 rounded-full"><Menu className="w-5 h-5" /></button>
-          <span className="font-black text-2xl tracking-tighter uppercase">{storeName}</span>
-        </div>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Tenor+Sans&family=Mulish:wght@300;400;500;600;700;800&display=swap');
+
+        .ec-root * { box-sizing: border-box; margin: 0; padding: 0; }
+        .ec-root { font-family: 'Mulish', sans-serif; background: #FAFAFA; color: #111; min-height: 100vh; }
+
+        /* Announcement bar */
+        .ec-announce {
+          background: #111; color: #fff;
+          text-align: center; padding: 11px;
+          font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 500;
+        }
         
-        <div className="hidden md:flex flex-1 max-w-xl mx-8 relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4 group-focus-within:text-neutral-900 transition-colors" />
-          <input 
-            type="text" 
-            placeholder="Search products..." 
-            className="w-full pl-11 pr-4 py-2.5 bg-neutral-100 rounded-full border-transparent focus:bg-white focus:ring-2 focus:ring-black focus:border-transparent text-sm transition-all"
-          />
-        </div>
+        /* Navbar */
+        .ec-nav {
+          background: #FAFAFA; border-bottom: 1px solid #E8E8E8;
+          padding: 0 40px; height: 64px;
+          display: flex; align-items: center; justify-content: space-between;
+          position: sticky; top: 0; z-index: 50;
+        }
+        .ec-nav-left { display: flex; align-items: center; gap: 32px; }
+        .ec-menu-btn { background: none; border: none; cursor: pointer; padding: 8px; color: #111; }
+        .ec-logo {
+          font-family: 'Tenor Sans', serif;
+          font-size: 22px; letter-spacing: 0.25em;
+          color: #111; text-transform: uppercase;
+        }
+        .ec-nav-links { display: none; }
+        @media(min-width:768px) {
+          .ec-nav-links { display: flex; gap: 28px; }
+          .ec-menu-btn { display: none; }
+        }
+        .ec-nav-link { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #555; cursor: pointer; transition: color 0.2s; }
+        .ec-nav-link:hover { color: #111; }
+        .ec-nav-right { display: flex; align-items: center; gap: 20px; }
+        .ec-nav-icon-btn { background: none; border: none; cursor: pointer; color: #555; transition: color 0.2s; position: relative; }
+        .ec-nav-icon-btn:hover { color: #111; }
+        .ec-cart-badge {
+          position: absolute; top: -6px; right: -8px;
+          width: 18px; height: 18px; background: #111; color: #fff;
+          font-size: 10px; font-weight: 800; border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+        }
 
-        <div className="flex items-center gap-4 sm:gap-6">
-          <button className="hidden sm:block text-neutral-600 hover:text-black font-medium text-sm transition-colors">Account</button>
-          <button 
-            onClick={() => setIsCartOpen(true)}
-            className="relative p-2 text-neutral-600 hover:text-black transition-colors"
-          >
-            <ShoppingCart className="w-6 h-6" />
-            {cart.length > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-black text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white">
-                {cart.reduce((sum, item) => sum + item.qty, 0)}
-              </span>
-            )}
-          </button>
-        </div>
-      </nav>
+        /* Hero */
+        .ec-hero {
+          background: #111; color: #fff;
+          display: flex; align-items: stretch; min-height: 480px;
+          margin-bottom: 80px;
+        }
+        .ec-hero-left {
+          flex: 1; padding: 80px 80px;
+          display: flex; flex-direction: column; justify-content: center;
+        }
+        .ec-hero-eyebrow {
+          font-size: 10px; font-weight: 700; letter-spacing: 0.3em;
+          text-transform: uppercase; color: #888; margin-bottom: 24px;
+        }
+        .ec-hero-title {
+          font-family: 'Tenor Sans', serif;
+          font-size: 68px; line-height: 1.0; letter-spacing: -0.02em;
+          text-transform: uppercase; margin-bottom: 24px;
+        }
+        .ec-hero-desc { font-size: 15px; color: #888; max-width: 360px; line-height: 1.7; margin-bottom: 40px; font-weight: 300; }
+        .ec-hero-cta {
+          display: inline-flex; align-items: center; gap: 12px;
+          background: #FFF; color: #111;
+          font-size: 11px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase;
+          padding: 16px 32px; border: none; cursor: pointer;
+          transition: background 0.2s; width: fit-content;
+        }
+        .ec-hero-cta:hover { background: #E8E8E8; }
+        .ec-hero-right {
+          width: 420px; flex-shrink: 0;
+          background: repeating-linear-gradient(135deg,#1a1a1a,#1a1a1a 30px,#222 30px,#222 60px);
+          position: relative; overflow: hidden;
+        }
+        .ec-hero-right::before {
+          content: 'SS\\A26';
+          white-space: pre;
+          position: absolute; top: 40px; right: 40px;
+          font-family: 'Tenor Sans', serif;
+          font-size: 11px; letter-spacing: 0.2em;
+          text-transform: uppercase; color: rgba(255,255,255,0.3);
+          text-align: right;
+          line-height: 1.8;
+        }
 
-      {/* Hero Banner */}
-      <div className="bg-neutral-900 text-white px-4 py-16 sm:px-8 sm:py-24 mb-12 text-center relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-neutral-500 via-neutral-900 to-black"></div>
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <span className="inline-block py-1 px-3 border border-neutral-700 rounded-full text-xs font-semibold tracking-widest uppercase mb-6 text-neutral-300">New Arrivals</span>
-          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-6 leading-none">Summer Collection</h1>
-          <p className="text-neutral-400 text-lg mb-8 max-w-xl mx-auto">Discover the latest trends with our new premium collection. Designed for comfort and style.</p>
-          <button className="bg-white text-black px-8 py-4 rounded-full font-bold uppercase tracking-wide hover:bg-neutral-200 transition-colors">Shop Now</button>
-        </div>
-      </div>
+        /* Categories */
+        .ec-cats {
+          max-width: 1280px; margin: 0 auto;
+          padding: 0 40px; margin-bottom: 40px;
+          display: flex; gap: 0; border-bottom: 1px solid #E8E8E8; overflow-x: auto;
+        }
+        .ec-cat-btn {
+          padding: 14px 24px; background: none;
+          border-bottom: 2px solid transparent; border-top: none; border-left: none; border-right: none;
+          font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+          color: #888; cursor: pointer; white-space: nowrap;
+          transition: all 0.2s; margin-bottom: -1px;
+          font-family: 'Mulish', sans-serif;
+        }
+        .ec-cat-btn:hover { color: #111; }
+        .ec-cat-btn.active { color: #111; border-bottom-color: #111; }
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-8">
-        {/* Categories */}
-        <div className="flex gap-2 overflow-x-auto pb-6 mb-8 scrollbar-hide border-b border-neutral-200">
-          {allCategories.map((cat, idx) => (
-            <button 
-              key={idx}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-6 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${activeCategory === cat ? 'bg-black text-white' : 'bg-transparent text-neutral-600 hover:bg-neutral-200'}`}
-            >
-              {cat}
+        /* Product grid */
+        .ec-products { max-width: 1280px; margin: 0 auto; padding: 0 40px 80px; }
+        .ec-products-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .ec-products-count { font-size: 13px; color: #888; font-weight: 400; }
+        .ec-sort-btn { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: none; border: 1px solid #E8E8E8; padding: 8px 16px; cursor: pointer; color: #555; transition: all 0.2s; font-family: 'Mulish', sans-serif; }
+        .ec-sort-btn:hover { border-color: #111; color: #111; }
+
+        .ec-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px 24px; }
+        
+        .ec-product { cursor: pointer; }
+        .ec-product-img {
+          aspect-ratio: 3/4; position: relative;
+          margin-bottom: 16px; overflow: hidden;
+        }
+        .ec-product-img-bg { position: absolute; inset: 0; transition: transform 0.5s ease; }
+        .ec-product:hover .ec-product-img-bg { transform: scale(1.04); }
+        .ec-product-overlay {
+          position: absolute; inset: 0;
+          display: flex; flex-direction: column;
+          justify-content: flex-end; padding: 16px;
+        }
+        .ec-wish-btn {
+          position: absolute; top: 12px; right: 12px;
+          width: 32px; height: 32px; background: rgba(255,255,255,0.85);
+          border: none; cursor: pointer; display: flex;
+          align-items: center; justify-content: center;
+          opacity: 0; transform: translateY(-4px);
+          transition: all 0.2s; border-radius: 50%;
+          color: #555;
+        }
+        .ec-product:hover .ec-wish-btn { opacity: 1; transform: translateY(0); }
+        .ec-wish-btn.wished { opacity: 1; color: #EF4444; }
+        .ec-sold-out-badge {
+          position: absolute; top: 12px; left: 12px;
+          background: #FFF; color: #111;
+          font-size: 9px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase;
+          padding: 5px 10px;
+        }
+        .ec-add-btn {
+          width: 100%; padding: 14px;
+          background: rgba(17,17,17,0.88); backdrop-filter: blur(4px);
+          color: #FFF; border: none; cursor: pointer;
+          font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+          display: flex; align-items: center; justify-content: center; gap: 8px;
+          opacity: 0; transform: translateY(8px);
+          transition: all 0.2s; font-family: 'Mulish', sans-serif;
+        }
+        .ec-product:hover .ec-add-btn { opacity: 1; transform: translateY(0); }
+        .ec-add-btn:disabled { background: rgba(17,17,17,0.4); cursor: not-allowed; }
+
+        .ec-product-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.01em; }
+        .ec-product-cat { font-size: 11px; color: #888; margin-bottom: 8px; letter-spacing: 0.05em; }
+        .ec-product-bottom { display: flex; justify-content: space-between; align-items: center; }
+        .ec-product-price { font-family: 'Tenor Sans', serif; font-size: 18px; color: #111; }
+        .ec-product-rating { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #888; font-weight: 600; }
+
+        /* Cart */
+        .ec-cart-overlay { position: fixed; inset: 0; z-index: 100; display: flex; justify-content: flex-end; }
+        .ec-cart-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.3); }
+        .ec-cart {
+          position: relative; width: 420px; max-width: 100%;
+          background: #FAFAFA; height: 100%;
+          display: flex; flex-direction: column;
+          border-left: 1px solid #E8E8E8;
+        }
+        .ec-cart-header {
+          padding: 28px 32px; border-bottom: 1px solid #E8E8E8;
+          display: flex; justify-content: space-between; align-items: center;
+          background: #FFF;
+        }
+        .ec-cart-title { font-family: 'Tenor Sans', serif; font-size: 18px; letter-spacing: 0.1em; text-transform: uppercase; }
+        .ec-cart-count { font-size: 12px; font-weight: 700; color: #888; }
+        .ec-close-btn { background: none; border: none; cursor: pointer; color: #555; transition: color 0.2s; }
+        .ec-close-btn:hover { color: #111; }
+        .ec-cart-items { flex: 1; overflow-y: auto; padding: 24px 32px; }
+        .ec-cart-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .ec-cart-empty-icon { color: #DDD; margin-bottom: 16px; }
+        .ec-cart-empty-text { font-size: 15px; color: #888; font-weight: 300; margin-bottom: 16px; }
+        .ec-continue-btn { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; background: none; border: none; cursor: pointer; color: #111; text-decoration: underline; text-underline-offset: 3px; font-family: 'Mulish', sans-serif; }
+        
+        .ec-cart-item {
+          display: flex; gap: 16px; padding: 20px 0;
+          border-bottom: 1px solid #E8E8E8;
+        }
+        .ec-item-img { width: 80px; height: 96px; background: #F0F0F0; flex-shrink: 0; }
+        .ec-item-info { flex: 1; display: flex; flex-direction: column; }
+        .ec-item-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .ec-item-cat { font-size: 11px; color: #888; margin-bottom: auto; }
+        .ec-item-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+        .ec-item-price { font-family: 'Tenor Sans', serif; font-size: 17px; }
+        .ec-qty-ctrl { display: flex; align-items: center; gap: 12px; border: 1px solid #E8E8E8; padding: 6px 12px; }
+        .ec-qty-btn { background: none; border: none; cursor: pointer; color: #888; transition: color 0.2s; display: flex; align-items: center; }
+        .ec-qty-btn:hover { color: #111; }
+        .ec-qty-num { font-size: 13px; font-weight: 700; min-width: 16px; text-align: center; }
+        .ec-remove-btn { background: none; border: none; cursor: pointer; color: #CCC; transition: color 0.2s; }
+        .ec-remove-btn:hover { color: #EF4444; }
+        
+        .ec-cart-footer { padding: 24px 32px; border-top: 1px solid #E8E8E8; background: #FFF; }
+        .ec-subtotal-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; }
+        .ec-subtotal-label { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #888; }
+        .ec-subtotal-amount { font-family: 'Tenor Sans', serif; font-size: 24px; }
+        .ec-checkout-btn {
+          width: 100%; padding: 18px;
+          background: #111; color: #FFF; border: none; cursor: pointer;
+          font-size: 11px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase;
+          display: flex; align-items: center; justify-content: center; gap: 10px;
+          transition: background 0.2s; font-family: 'Mulish', sans-serif;
+        }
+        .ec-checkout-btn:hover { background: #333; }
+        .ec-cart-note { text-align: center; font-size: 11px; color: #AAA; margin-top: 12px; }
+
+        /* Footer */
+        .ec-footer {
+          background: #FFF; border-top: 1px solid #E8E8E8;
+          padding: 80px 40px 40px; margin-top: 80px;
+        }
+        .ec-footer-top {
+          display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px;
+          max-width: 1280px; margin: 0 auto 64px;
+        }
+        .ec-footer-col h4 {
+          font-family: 'Tenor Sans', serif; font-size: 12px; letter-spacing: 0.15em;
+          text-transform: uppercase; margin-bottom: 24px; color: #111;
+        }
+        .ec-footer-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+        .ec-footer-col a {
+          font-size: 13px; color: #666; text-decoration: none; transition: color 0.2s;
+        }
+        .ec-footer-col a:hover { color: #111; }
+        .ec-newsletter-desc { font-size: 13px; color: #666; margin-bottom: 16px; line-height: 1.6; }
+        .ec-newsletter-form { display: flex; border-bottom: 1px solid #111; padding-bottom: 8px; }
+        .ec-newsletter-input {
+          background: none; border: none; flex: 1; outline: none;
+          font-size: 13px; font-family: 'Mulish', sans-serif;
+        }
+        .ec-newsletter-btn {
+          background: none; border: none; cursor: pointer;
+          font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+        }
+        .ec-footer-bottom {
+          max-width: 1280px; margin: 0 auto;
+          padding-top: 32px; border-top: 1px solid #E8E8E8;
+          display: flex; justify-content: space-between; align-items: center;
+          font-size: 12px; color: #999;
+        }
+        .ec-footer-social { display: flex; gap: 24px; }
+        .ec-footer-social a { color: #999; text-decoration: none; transition: color 0.2s; }
+        .ec-footer-social a:hover { color: #111; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+          .ec-grid { grid-template-columns: repeat(3, 1fr); }
+          .ec-footer-top { grid-template-columns: repeat(2, 1fr); gap: 40px; }
+        }
+
+        @media (max-width: 768px) {
+          .ec-nav { padding: 0 20px; }
+          .ec-hero { flex-direction: column; min-height: auto; margin-bottom: 60px; }
+          .ec-hero-left { padding: 60px 24px; }
+          .ec-hero-title { font-size: 44px; }
+          .ec-hero-right { width: 100%; height: 300px; }
+          .ec-grid { grid-template-columns: repeat(2, 1fr); gap: 24px 16px; }
+          .ec-footer-top { grid-template-columns: 1fr; gap: 40px; }
+          .ec-cart { width: 100%; }
+        }
+
+        @media (max-width: 480px) {
+          .ec-grid { grid-template-columns: 1fr; }
+          .ec-hero-title { font-size: 36px; }
+        }
+      `}</style>
+
+      <div className="ec-root">
+        <div className="ec-announce">Free shipping on orders over $250 · Returns within 30 days</div>
+        
+        <nav className="ec-nav">
+          <div className="ec-nav-left">
+            <button className="ec-menu-btn"><Menu size={20} /></button>
+            <div className="ec-logo">{storeName}</div>
+          </div>
+          <div className="ec-nav-links">
+            {['New Arrivals', 'Collections', 'Outerwear', 'Knitwear', 'Sale'].map(l => (
+              <span key={l} className="ec-nav-link">{l}</span>
+            ))}
+          </div>
+          <div className="ec-nav-right">
+            <button className="ec-nav-icon-btn"><Search size={18} /></button>
+            <button className="ec-nav-icon-btn" style={{fontSize:12,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',background:'none',border:'none',cursor:'pointer',color:'#555'}}>Account</button>
+            <button className="ec-nav-icon-btn" onClick={() => setIsCartOpen(true)}>
+              <ShoppingCart size={18} />
+              {cartCount > 0 && <span className="ec-cart-badge">{cartCount}</span>}
             </button>
+          </div>
+        </nav>
+
+        <div className="ec-hero">
+          <div className="ec-hero-left">
+            <div className="ec-hero-eyebrow">Spring · Summer 2026</div>
+            <h1 className="ec-hero-title">Form<br/>Meets<br/>Function</h1>
+            <p className="ec-hero-desc">Elevated essentials built for the modern wardrobe. Crafted from responsible materials, designed to last.</p>
+            <button className="ec-hero-cta">Shop the Collection <ArrowRight size={14} /></button>
+          </div>
+          <div className="ec-hero-right"></div>
+        </div>
+
+        <div className="ec-cats">
+          {allCategories.map(cat => (
+            <button key={cat} className={`ec-cat-btn ${activeCategory === cat ? 'active' : ''}`} onClick={() => setActiveCategory(cat)}>{cat}</button>
           ))}
         </div>
 
-        {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12">
-          {filteredProducts.map((product: any) => (
-            <div key={product.id} className="group flex flex-col">
-              <div className="relative aspect-[4/5] bg-neutral-200 mb-4 rounded-2xl overflow-hidden">
-                <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity z-10"></div>
-                {/* Fallback pattern */}
-                <div className="absolute inset-0 bg-neutral-100 opacity-50 bg-[repeating-linear-gradient(45deg,_transparent,_transparent_10px,_#e5e5e5_10px,_#e5e5e5_20px)]"></div>
-                
-                <button className="absolute top-4 right-4 z-20 p-2.5 bg-white/80 hover:bg-white backdrop-blur-sm rounded-full text-neutral-600 hover:text-red-500 transition-colors shadow-sm opacity-0 group-hover:opacity-100 -translate-y-2 group-hover:translate-y-0">
-                  <Heart className="w-4 h-4" />
-                </button>
-
-                {!product.inStock && (
-                  <div className="absolute top-4 left-4 z-20 px-2.5 py-1 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded shadow-sm">
-                    Sold Out
+        <div className="ec-products">
+          <div className="ec-products-header">
+            <span className="ec-products-count">{filteredProducts.length} products</span>
+            <button className="ec-sort-btn">Sort: Featured</button>
+          </div>
+          <div className="ec-grid">
+            {filteredProducts.map((product, pi) => (
+              <div key={product.id} className="ec-product">
+                <div className="ec-product-img">
+                  <div className="ec-product-img-bg" style={{background: patterns[pi % patterns.length]}}></div>
+                  <div className="ec-product-overlay">
+                    <button className={`ec-wish-btn ${wishlist.has(product.id) ? 'wished' : ''}`} onClick={() => toggleWish(product.id)}>
+                      <Heart size={14} fill={wishlist.has(product.id) ? '#EF4444' : 'none'} />
+                    </button>
+                    {!product.inStock && <div className="ec-sold-out-badge">Sold Out</div>}
+                    <button className="ec-add-btn" disabled={!product.inStock} onClick={() => product.inStock && addToCart(product)}>
+                      <ShoppingCart size={12} /> Add to Cart
+                    </button>
                   </div>
-                )}
-                
-                <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform z-20">
-                  <button 
-                    onClick={() => addToCart(product)}
-                    disabled={!product.inStock}
-                    className="w-full py-3.5 bg-black text-white rounded-xl font-semibold shadow-xl hover:bg-neutral-800 disabled:bg-neutral-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
-                  >
-                    <ShoppingCart className="w-4 h-4" /> Add to Cart
-                  </button>
+                </div>
+                <div className="ec-product-name">{product.name}</div>
+                <div className="ec-product-cat">{product.category}</div>
+                <div className="ec-product-bottom">
+                  <span className="ec-product-price">${typeof product.price === 'object' ? (product.price.amount || JSON.stringify(product.price)) : product.price}</span>
+                  <span className="ec-product-rating">
+                    <Star size={11} fill="#C9A84C" color="#C9A84C" /> {typeof product.rating === 'object' ? (product.rating.value || product.rating.score || JSON.stringify(product.rating)) : product.rating}
+                    <span style={{fontWeight:300}}>({product.reviews})</span>
+                  </span>
                 </div>
               </div>
-
-              <div>
-                <div className="flex justify-between items-start mb-1">
-                  <h3 className="font-bold text-lg text-neutral-900 line-clamp-1">{product.name}</h3>
-                  <span className="font-black text-lg">${product.price}</span>
-                </div>
-                <div className="text-neutral-500 text-sm mb-2">{product.category}</div>
-                <div className="flex items-center gap-1 text-sm font-medium">
-                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  <span>{product.rating}</span>
-                  <span className="text-neutral-400 font-normal">({product.reviews})</span>
-                </div>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Cart Sidebar Overlay */}
-      {isCartOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsCartOpen(false)}></div>
-          <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
-            <div className="px-6 py-5 border-b border-neutral-100 flex justify-between items-center bg-white">
-              <h2 className="font-black text-xl tracking-tight uppercase">Your Cart</h2>
-              <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-neutral-100 rounded-full transition-colors text-neutral-500">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-6 bg-neutral-50/50">
-              {cart.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center opacity-60">
-                  <ShoppingCart className="w-16 h-16 mb-4 text-neutral-300" />
-                  <p className="font-medium text-lg text-neutral-600">Your cart is empty</p>
-                  <button onClick={() => setIsCartOpen(false)} className="mt-4 text-sm font-bold uppercase tracking-wider text-black underline underline-offset-4">Continue Shopping</button>
+        {isCartOpen && (
+          <div className="ec-cart-overlay">
+            <div className="ec-cart-backdrop" onClick={() => setIsCartOpen(false)}></div>
+            <div className="ec-cart">
+              <div className="ec-cart-header">
+                <div>
+                  <div className="ec-cart-title">Cart</div>
+                  <div className="ec-cart-count">{cartCount} {cartCount === 1 ? 'item' : 'items'}</div>
                 </div>
-              ) : (
-                <div className="space-y-6">
-                  {cart.map((item, idx) => (
-                    <div key={idx} className="flex gap-4 bg-white p-4 rounded-2xl shadow-sm border border-neutral-100">
-                      <div className="w-20 h-24 bg-neutral-100 rounded-xl shrink-0"></div>
-                      <div className="flex-1 flex flex-col">
-                        <div className="flex justify-between items-start mb-1">
-                          <h4 className="font-bold text-neutral-900 line-clamp-2 leading-tight">{item.product.name}</h4>
-                          <button onClick={() => removeCartItem(item.product.id)} className="text-neutral-400 hover:text-red-500 transition-colors p-1 -mr-1 -mt-1"><Trash2 className="w-4 h-4" /></button>
-                        </div>
-                        <span className="text-neutral-500 text-xs mb-auto">{item.product.category}</span>
-                        <div className="flex justify-between items-end mt-4">
-                          <span className="font-black">${item.product.price}</span>
-                          <div className="flex items-center gap-3 bg-neutral-50 px-2 py-1 rounded-lg border border-neutral-200">
-                            <button onClick={() => updateQty(item.product.id, -1)} className="text-neutral-500 hover:text-black"><Minus className="w-3.5 h-3.5" /></button>
-                            <span className="font-semibold text-sm w-4 text-center">{item.qty}</span>
-                            <button onClick={() => updateQty(item.product.id, 1)} className="text-neutral-500 hover:text-black"><Plus className="w-3.5 h-3.5" /></button>
+                <button className="ec-close-btn" onClick={() => setIsCartOpen(false)}><X size={20} /></button>
+              </div>
+              <div className="ec-cart-items">
+                {cart.length === 0 ? (
+                  <div className="ec-cart-empty">
+                    <ShoppingCart size={48} className="ec-cart-empty-icon" />
+                    <div className="ec-cart-empty-text">Your cart is empty</div>
+                    <button className="ec-continue-btn" onClick={() => setIsCartOpen(false)}>Continue Shopping</button>
+                  </div>
+                ) : (
+                  cart.map((item, idx) => (
+                    <div key={idx} className="ec-cart-item">
+                      <div className="ec-item-img" style={{background: patterns[products.findIndex(p=>p.id===item.product.id) % patterns.length]}}></div>
+                      <div className="ec-item-info">
+                        <div className="ec-item-name">{item.product.name}</div>
+                        <div className="ec-item-cat">{item.product.category}</div>
+                        <div className="ec-item-bottom">
+                          <span className="ec-item-price">${item.product.price * item.qty}</span>
+                          <div style={{display:'flex',alignItems:'center',gap:8}}>
+                            <div className="ec-qty-ctrl">
+                              <button className="ec-qty-btn" onClick={() => updateQty(item.product.id, -1)}><Minus size={11} /></button>
+                              <span className="ec-qty-num">{item.qty}</span>
+                              <button className="ec-qty-btn" onClick={() => updateQty(item.product.id, 1)}><Plus size={11} /></button>
+                            </div>
+                            <button className="ec-remove-btn" onClick={() => removeItem(item.product.id)}><Trash2 size={14} /></button>
                           </div>
                         </div>
                       </div>
                     </div>
-                  ))}
+                  ))
+                )}
+              </div>
+              {cart.length > 0 && (
+                <div className="ec-cart-footer">
+                  <div className="ec-subtotal-row">
+                    <span className="ec-subtotal-label">Subtotal</span>
+                    <span className="ec-subtotal-amount">${cartTotal.toFixed(2)}</span>
+                  </div>
+                  <button className="ec-checkout-btn" onClick={() => { alert('Checkout!'); setCart([]); setIsCartOpen(false); }}>
+                    Checkout <ArrowRight size={14} />
+                  </button>
+                  <div className="ec-cart-note">Taxes & shipping calculated at checkout</div>
                 </div>
               )}
             </div>
-
-            {cart.length > 0 && (
-              <div className="px-6 py-6 border-t border-neutral-100 bg-white">
-                <div className="flex justify-between items-center mb-6">
-                  <span className="text-neutral-500 font-medium">Subtotal</span>
-                  <span className="font-black text-2xl tracking-tight">${cartTotal.toFixed(2)}</span>
-                </div>
-                <button 
-                  onClick={() => {
-                    alert("Checkout process started!");
-                    setCart([]);
-                    setIsCartOpen(false);
-                  }}
-                  className="w-full bg-black text-white py-4 rounded-2xl font-bold uppercase tracking-wider hover:bg-neutral-800 transition-colors flex justify-center items-center gap-2"
-                >
-                  Checkout <ArrowRight className="w-4 h-4" />
-                </button>
-                <p className="text-center text-xs text-neutral-400 mt-4">Taxes and shipping calculated at checkout</p>
-              </div>
-            )}
           </div>
-        </div>
-      )}
-    </div>
+        )}
+
+        <footer className="ec-footer">
+          <div className="ec-footer-top">
+            <div className="ec-footer-col">
+              <h4>Shop</h4>
+              <ul>
+                <li><a href="#">New Arrivals</a></li>
+                <li><a href="#">Collections</a></li>
+                <li><a href="#">Men</a></li>
+                <li><a href="#">Women</a></li>
+              </ul>
+            </div>
+            <div className="ec-footer-col">
+              <h4>About</h4>
+              <ul>
+                <li><a href="#">Our Story</a></li>
+                <li><a href="#">Craftsmanship</a></li>
+                <li><a href="#">Sustainability</a></li>
+                <li><a href="#">Stores</a></li>
+              </ul>
+            </div>
+            <div className="ec-footer-col">
+              <h4>Assistance</h4>
+              <ul>
+                <li><a href="#">Shipping & Returns</a></li>
+                <li><a href="#">Contact Us</a></li>
+                <li><a href="#">Size Guide</a></li>
+                <li><a href="#">FAQ</a></li>
+              </ul>
+            </div>
+            <div className="ec-footer-col">
+              <h4>Newsletter</h4>
+              <p className="ec-newsletter-desc">Subscribe to receive updates on new collections and early access to sales.</p>
+              <form className="ec-newsletter-form" onSubmit={e => e.preventDefault()}>
+                <input className="ec-newsletter-input" placeholder="Your email address" />
+                <button className="ec-newsletter-btn">Join</button>
+              </form>
+            </div>
+          </div>
+          <div className="ec-footer-bottom">
+            <div>&copy; {new Date().getFullYear()} {storeName}. All rights reserved.</div>
+            <div className="ec-footer-social">
+              <a href="#">Instagram</a>
+              <a href="#">Pinterest</a>
+              <a href="#">Twitter</a>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </>
   );
 }
