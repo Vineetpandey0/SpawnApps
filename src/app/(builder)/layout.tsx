@@ -16,22 +16,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <AuthGuard>
-      <body className="h-screen overflow-hidden bg-white text-gray-900 antialiased">
+    <AuthGuard>
+      <div className="flex min-h-screen w-full flex-col bg-white text-gray-900 antialiased">
         <SidebarProvider defaultOpen={true}>
-
           <TopNav />
-
           <AppSidebar />
-
-          <SidebarInset className="pt-14">
+          <SidebarInset className="pt-14 flex-1">
             {children}
           </SidebarInset>
-
         </SidebarProvider>
-      </body>
-      </AuthGuard>
-    </html>
+      </div>
+    </AuthGuard>
   );
 }
