@@ -3,7 +3,29 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Search, Star, Heart, Menu, Plus, Minus, X, Trash2, ArrowRight } from 'lucide-react';
 
-const sampleData = {
+interface Product {
+  id: string;
+  name: string;
+  category: string;
+  price: number | { amount?: number; value?: number; formatted?: string };
+  rating?: number | { rate?: number; count?: number; value?: number; score?: number };
+  reviews?: number;
+  inStock?: boolean;
+}
+
+interface EcommerceData {
+  storeName?: string;
+  platformName?: string;
+  name?: string;
+  title?: string;
+  categories?: string[];
+  collections?: string[];
+  products?: Product[];
+  inventory?: Product[];
+  items?: Product[];
+}
+
+const sampleData: EcommerceData = {
   storeName: "ARCO",
   categories: ["Outerwear", "Knitwear", "Trousers", "Accessories"],
   products: [
@@ -29,21 +51,21 @@ const patterns = [
   'linear-gradient(to bottom right,#e8e8e8,#f8f8f8 40%,#eeeeee)',
 ];
 
-export default function EcommerceStore({ data }) {
+export default function EcommerceStore({ data }: { data?: EcommerceData }) {
   const safeData = data || sampleData;
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState<{ product: Product, qty: number }[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
-  const [wishlist, setWishlist] = useState(new Set());
+  const [wishlist, setWishlist] = useState<Set<string>>(new Set());
 
   const storeName = safeData.storeName || safeData.platformName || safeData.name || sampleData.storeName;
-  const categories = safeData.categories || safeData.collections || sampleData.categories;
-  const products = safeData.products || safeData.inventory || safeData.items || sampleData.products;
+  const categories = safeData.categories || safeData.collections || sampleData.categories || [];
+  const products = safeData.products || safeData.inventory || safeData.items || sampleData.products || [];
 
   const allCategories = ["All", ...categories];
-  const filteredProducts = products.filter(p => activeCategory === "All" || p.category?.toLowerCase() === activeCategory.toLowerCase());
+  const filteredProducts = products?.filter(p => activeCategory === "All" || p.category?.toLowerCase() === activeCategory.toLowerCase());
 
-  const addToCart = (product) => {
+  const addToCart = (product: Product) => {
     setCart(prev => {
       const existing = prev.find(i => i.product.id === product.id);
       if (existing) return prev.map(i => i.product.id === product.id ? { ...i, qty: i.qty + 1 } : i);
@@ -51,10 +73,18 @@ export default function EcommerceStore({ data }) {
     });
     setIsCartOpen(true);
   };
-  const updateQty = (id, delta) => setCart(prev => prev.map(i => i.product.id === id ? { ...i, qty: Math.max(1, i.qty + delta) } : i));
-  const removeItem = (id) => setCart(prev => prev.filter(i => i.product.id !== id));
-  const toggleWish = (id) => { const n = new Set(wishlist); n.has(id) ? n.delete(id) : n.add(id); setWishlist(n); };
-  const cartTotal = cart.reduce((t, i) => t + i.product.price * i.qty, 0);
+  const updateQty = (id: string, delta: number) => setCart(prev => prev.map(i => i.product.id === id ? { ...i, qty: Math.max(1, i.qty + delta) } : i));
+  const removeItem = (id: string) => setCart(prev => prev.filter(i => i.product.id !== id));
+  const toggleWish = (id: string) => { const n = new Set(wishlist); n.has(id) ? n.delete(id) : n.add(id); setWishlist(n); };
+  const getNumericPrice = (p: Product['price']): number => {
+    if (typeof p === 'number') return p;
+    if (typeof p === 'object' && p !== null) {
+      return p.amount || p.value || 0;
+    }
+    return 0;
+  };
+
+  const cartTotal = cart.reduce((t, i) => t + getNumericPrice(i.product.price) * i.qty, 0);
   const cartCount = cart.reduce((t, i) => t + i.qty, 0);
 
   return (
@@ -377,11 +407,11 @@ export default function EcommerceStore({ data }) {
 
         <div className="ec-products">
           <div className="ec-products-header">
-            <span className="ec-products-count">{filteredProducts.length} products</span>
+            <span className="ec-products-count">{filteredProducts?.length} products</span>
             <button className="ec-sort-btn">Sort: Featured</button>
           </div>
           <div className="ec-grid">
-            {filteredProducts.map((product, pi) => (
+            {filteredProducts?.map((product, pi) => (
               <div key={product.id} className="ec-product">
                 <div className="ec-product-img">
                   <div className="ec-product-img-bg" style={{background: patterns[pi % patterns.length]}}></div>
@@ -398,9 +428,9 @@ export default function EcommerceStore({ data }) {
                 <div className="ec-product-name">{product.name}</div>
                 <div className="ec-product-cat">{product.category}</div>
                 <div className="ec-product-bottom">
-                  <span className="ec-product-price">${typeof product.price === 'object' ? (product.price.amount || JSON.stringify(product.price)) : product.price}</span>
+                  <span className="ec-product-price">${typeof product.price === 'object' ? ((product.price as any).amount || (product.price as any).value || JSON.stringify(product.price)) : product.price}</span>
                   <span className="ec-product-rating">
-                    <Star size={11} fill="#C9A84C" color="#C9A84C" /> {typeof product.rating === 'object' ? (product.rating.value || product.rating.score || JSON.stringify(product.rating)) : product.rating}
+                    <Star size={11} fill="#C9A84C" color="#C9A84C" /> {typeof product.rating === 'object' ? ((product.rating as any).value || (product.rating as any).score || (product.rating as any).rate || JSON.stringify(product.rating)) : product.rating}
                     <span style={{fontWeight:300}}>({product.reviews})</span>
                   </span>
                 </div>
@@ -435,7 +465,7 @@ export default function EcommerceStore({ data }) {
                         <div className="ec-item-name">{item.product.name}</div>
                         <div className="ec-item-cat">{item.product.category}</div>
                         <div className="ec-item-bottom">
-                          <span className="ec-item-price">${item.product.price * item.qty}</span>
+                          <span className="ec-item-price">${getNumericPrice(item.product.price) * item.qty}</span>
                           <div style={{display:'flex',alignItems:'center',gap:8}}>
                             <div className="ec-qty-ctrl">
                               <button className="ec-qty-btn" onClick={() => updateQty(item.product.id, -1)}><Minus size={11} /></button>

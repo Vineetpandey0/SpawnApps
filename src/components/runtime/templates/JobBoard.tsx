@@ -3,7 +3,28 @@
 import React, { useState } from 'react';
 import { Briefcase, MapPin, DollarSign, Clock, Search, ChevronDown, CheckCircle2, Bookmark, BookmarkCheck, X } from 'lucide-react';
 
-const sampleData = {
+interface Job {
+  id: string;
+  role: string;
+  company: string;
+  location: string;
+  type: string;
+  salary: string | { amount?: string; range?: string; value?: string };
+  postedAt: string;
+  tags?: string[];
+  level: string;
+}
+
+interface JobData {
+  title?: string;
+  platformName?: string;
+  heading?: string;
+  jobs?: Job[];
+  listings?: Job[];
+  positions?: Job[];
+}
+
+const sampleData: JobData = {
   title: "Find Your Next Career Move",
   jobs: [
     { id: "j1", role: "Senior Frontend Engineer", company: "Vercel", location: "Remote", type: "Full-time", salary: "$160k–$200k", postedAt: "2h ago", tags: ["React", "Next.js", "TypeScript"], level: "Senior" },
@@ -15,18 +36,18 @@ const sampleData = {
   ]
 };
 
-const levelColors = { Senior: '#4F46E5', Mid: '#0891B2', Junior: '#059669' };
+const levelColors: Record<string, string> = { Senior: '#4F46E5', Mid: '#0891B2', Junior: '#059669' };
 
-export default function JobBoard({ data }) {
+export default function JobBoard({ data }: { data?: JobData }) {
   const safeData = data || sampleData;
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeJob, setActiveJob] = useState(null);
-  const [appliedJobs, setAppliedJobs] = useState(new Set());
-  const [savedJobs, setSavedJobs] = useState(new Set());
-  const [selectedTypes, setSelectedTypes] = useState(new Set());
+  const [activeJob, setActiveJob] = useState<Job | null>(null);
+  const [appliedJobs, setAppliedJobs] = useState<Set<string>>(new Set());
+  const [savedJobs, setSavedJobs] = useState<Set<string>>(new Set());
+  const [selectedTypes, setSelectedTypes] = useState<Set<string>>(new Set());
 
-  const title = safeData.title || safeData.platformName || safeData.heading || sampleData.title;
-  const jobs = safeData.jobs || safeData.listings || safeData.positions || sampleData.jobs;
+  const title:any = safeData.title || safeData.platformName || safeData.heading || sampleData.title;
+  const jobs = safeData.jobs || safeData.listings || safeData.positions || sampleData.jobs || [];
 
   const filteredJobs = jobs.filter(j =>
     (j.role?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -34,8 +55,8 @@ export default function JobBoard({ data }) {
     (selectedTypes.size === 0 || selectedTypes.has(j.type))
   );
 
-  const toggleType = (t) => { const n = new Set(selectedTypes); n.has(t) ? n.delete(t) : n.add(t); setSelectedTypes(n); };
-  const toggleSave = (id, e) => { e.stopPropagation(); const n = new Set(savedJobs); n.has(id) ? n.delete(id) : n.add(id); setSavedJobs(n); };
+  const toggleType = (t: string) => { const n = new Set(selectedTypes); n.has(t) ? n.delete(t) : n.add(t); setSelectedTypes(n); };
+  const toggleSave = (id: string, e: React.MouseEvent) => { e.stopPropagation(); const n = new Set(savedJobs); n.has(id) ? n.delete(id) : n.add(id); setSavedJobs(n); };
 
   return (
     <>
@@ -380,9 +401,9 @@ export default function JobBoard({ data }) {
                   </div>
                   <div className="jb-job-meta">
                     <span className="jb-job-meta-item"><MapPin size={13} />{job.location}</span>
-                    <span className="jb-job-meta-item"><DollarSign size={13} />{job.salary}</span>
+                    <span className="jb-job-meta-item"><DollarSign size={13} />{typeof job.salary === 'object' ? ((job.salary as any).range || (job.salary as any).amount || (job.salary as any).value || JSON.stringify(job.salary)) : job.salary}</span>
                     <span className="jb-job-meta-item"><Clock size={13} />{job.postedAt}</span>
-                    {job.level && <span className="jb-level-badge" style={{background:`${levelColors[job.level]}15`,color:levelColors[job.level]}}>{job.level}</span>}
+                    {job.level && <span className="jb-level-badge" style={{background:`${levelColors[job.level] || '#6B7280'}15`,color:levelColors[job.level] || '#6B7280'}}>{job.level}</span>}
                   </div>
                   <div className="jb-job-tags">
                     {job.tags?.slice(0,3).map((t,i) => <span key={i} className="jb-job-tag">{t}</span>)}
@@ -411,7 +432,7 @@ export default function JobBoard({ data }) {
                 <div className="jb-panel-company">{activeJob.company} · {activeJob.location}</div>
                 <div className="jb-panel-badges">
                   <span className="jb-panel-badge blue"><Briefcase size={14} />{activeJob.type}</span>
-                  <span className="jb-panel-badge green"><DollarSign size={14} />{activeJob.salary}</span>
+                  <span className="jb-panel-badge green"><DollarSign size={14} />{typeof activeJob.salary === 'object' ? ((activeJob.salary as any).range || (activeJob.salary as any).amount || (activeJob.salary as any).value || JSON.stringify(activeJob.salary)) : activeJob.salary}</span>
                 </div>
               </div>
               <div className="jb-panel-body">

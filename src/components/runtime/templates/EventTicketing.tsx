@@ -3,7 +3,26 @@
 import React, { useState } from 'react';
 import { Ticket, Calendar, MapPin, Search, ChevronRight, CheckCircle2 } from 'lucide-react';
 
-const sampleData = {
+interface Event {
+  id: string;
+  title: string;
+  category: string;
+  date: string;
+  location: string;
+  price: string | { amount?: string; min?: string; value?: string };
+  fullDate: string;
+}
+
+interface EventData {
+  platformName?: string;
+  name?: string;
+  title?: string;
+  events?: Event[];
+  listings?: Event[];
+  tickets?: Event[];
+}
+
+const sampleData: EventData = {
   platformName: "TicketStream",
   events: [
     { id: "e1", title: "Arctic Monkeys — Live World Tour", category: "Music", date: "Jun 14", location: "Madison Square Garden, NYC", price: "$89", fullDate: "June 14, 2026" },
@@ -24,14 +43,14 @@ const gradients = [
   'linear-gradient(135deg,#92400E 0%,#F59E0B 60%,#FDE68A 100%)',
 ];
 
-export default function EventTicketing({ data }) {
+export default function EventTicketing({ data }: { data?: EventData }) {
   const safeData = data || sampleData;
   const [activeCategory, setActiveCategory] = useState("All");
-  const [purchasedTickets, setPurchasedTickets] = useState(new Set());
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [purchasedTickets, setPurchasedTickets] = useState<Set<string>>(new Set());
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   const platformName = safeData.platformName || safeData.name || safeData.title || sampleData.platformName;
-  const events = safeData.events || safeData.listings || safeData.tickets || sampleData.events;
+  const events = safeData.events || safeData.listings || safeData.tickets || sampleData.events || [];
   
   const categories = ["All", ...Array.from(new Set(events.map(e => e.category).filter(Boolean)))];
   const filteredEvents = events.filter(e => activeCategory === "All" || e.category === activeCategory);
@@ -374,7 +393,7 @@ export default function EventTicketing({ data }) {
                   <div className="et-card-footer">
                     <div className="et-price-wrap">
                       <div className="et-price-from">From</div>
-                      <div className="et-price">{typeof event.price === 'object' ? (event.price.amount || event.price.min || JSON.stringify(event.price)) : event.price}</div>
+                      <div className="et-price">{typeof event.price === 'object' ? ((event.price as any).amount || (event.price as any).min || (event.price as any).value || JSON.stringify(event.price)) : event.price}</div>
                     </div>
                     {purchasedTickets.has(event.id) ? (
                       <div className="et-got-btn"><CheckCircle2 size={15} /> Got Tickets</div>
@@ -400,7 +419,7 @@ export default function EventTicketing({ data }) {
                 <div className="et-modal-event-name">{selectedEvent.title}</div>
                 <div className="et-modal-event-meta">{selectedEvent.fullDate} · {selectedEvent.location}</div>
               </div>
-              <div className="et-modal-row"><span className="et-modal-row-label">General Admission</span><span className="et-modal-row-value">{selectedEvent.price}</span></div>
+              <div className="et-modal-row"><span className="et-modal-row-label">General Admission</span><span className="et-modal-row-value">{typeof selectedEvent.price === 'object' ? ((selectedEvent.price as any).amount || (selectedEvent.price as any).min || (selectedEvent.price as any).value || JSON.stringify(selectedEvent.price)) : selectedEvent.price}</span></div>
               <div className="et-modal-row"><span className="et-modal-row-label">Service Fees</span><span className="et-modal-row-value">$12.50</span></div>
               <button className="et-modal-pay" onClick={() => { const n = new Set(purchasedTickets); n.add(selectedEvent.id); setPurchasedTickets(n); setSelectedEvent(null); }}>
                 Pay Now <ChevronRight size={16} />

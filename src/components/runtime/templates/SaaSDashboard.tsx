@@ -3,7 +3,32 @@
 import React, { useState } from 'react';
 import { LayoutDashboard, Users, CreditCard, Activity, Bell, Search, Settings, ArrowUpRight, ArrowDownRight, MoreHorizontal, Filter, Menu, X } from 'lucide-react';
 
-export default function SaaSDashboard({ data }: { data: any }) {
+interface Metric {
+  mrr?: string;
+  activeUsers?: string;
+  growth?: string;
+  churn?: string;
+}
+
+interface Activity {
+  user: string;
+  action: string;
+  time: string;
+}
+
+interface ChartItem {
+  month: string;
+  value: number;
+}
+
+interface SaaSData {
+  userName?: string;
+  metrics?: Metric;
+  recentActivity?: Activity[];
+  chartData?: ChartItem[];
+}
+
+export default function SaaSDashboard({ data }: { data?: SaaSData }) {
   const [activeTab, setActiveTab] = useState("Overview");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -150,11 +175,11 @@ export default function SaaSDashboard({ data }: { data: any }) {
               
               <div className="h-64 flex items-end gap-2 sm:gap-4 px-2">
                 {/* Simulated Bar Chart */}
-                {(chartData.length > 0 ? chartData : [
+                {(chartData?.length > 0 ? chartData : [
                   { month: 'Jan', value: 40 }, { month: 'Feb', value: 30 }, { month: 'Mar', value: 50 },
                   { month: 'Apr', value: 45 }, { month: 'May', value: 70 }, { month: 'Jun', value: 65 },
                   { month: 'Jul', value: 85 }, { month: 'Aug', value: 90 }
-                ]).map((d: any, i: number) => (
+                ]).map((d: ChartItem, i: number) => (
                   <div key={i} className="flex-1 flex flex-col items-center justify-end group">
                     <div className="w-full bg-blue-100 rounded-t-sm relative group-hover:bg-blue-200 transition-colors" style={{ height: `${Math.max(10, (d.value / 100) * 100)}%` }}>
                       <div className="absolute bottom-0 w-full bg-blue-600 rounded-t-sm shadow-sm transition-all duration-500 ease-out" style={{ height: `${Math.max(10, (d.value / 100) * 80)}%` }}></div>
@@ -177,7 +202,7 @@ export default function SaaSDashboard({ data }: { data: any }) {
               </div>
               
               <div className="flex-1 overflow-y-auto space-y-5 pr-2">
-                {recentActivity.map((act: any, i: number) => (
+                {recentActivity?.map((act: Activity, i: number) => (
                   <div key={i} className="flex gap-4">
                     <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 mt-0.5 text-slate-500 font-bold text-xs uppercase">
                       {act.user?.substring(0, 2) || 'US'}
@@ -192,7 +217,7 @@ export default function SaaSDashboard({ data }: { data: any }) {
                     </div>
                   </div>
                 ))}
-                {recentActivity.length === 0 && (
+                {(!recentActivity || recentActivity.length === 0) && (
                   <div className="text-slate-400 text-sm text-center py-10">No recent activity</div>
                 )}
               </div>

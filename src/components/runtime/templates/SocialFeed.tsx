@@ -3,7 +3,22 @@
 import React, { useState } from 'react';
 import { Heart, MessageCircle, Share2, MoreHorizontal, Home, Search, Bell, Mail, Bookmark, User } from 'lucide-react';
 
-export default function SocialFeed({ data }: { data: any }) {
+interface SocialPost {
+  id: string;
+  author: string;
+  content: string;
+  timeAgo: string;
+  avatarInitials?: string;
+  likes?: number;
+  comments?: number;
+}
+
+interface SocialData {
+  currentUser?: string;
+  posts?: SocialPost[];
+}
+
+export default function SocialFeed({ data }: { data?: SocialData }) {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState("For You");
 
@@ -108,7 +123,7 @@ export default function SocialFeed({ data }: { data: any }) {
 
         {/* Posts */}
         <div className="pb-20 sm:pb-0">
-          {posts.map((post: any) => {
+          {posts?.map((post: SocialPost) => {
             const isLiked = likedPosts.has(post.id);
             return (
               <article key={post.id} className="p-4 border-b border-slate-800 hover:bg-slate-900/30 transition-colors cursor-pointer group">

@@ -3,7 +3,31 @@
 import React, { useState } from 'react';
 import { Search, MapPin, Award, DollarSign, Heart, X, ChevronRight } from 'lucide-react';
 
-const sampleData = {
+interface College {
+  id: string;
+  name: string;
+  location: string;
+  ranking: number | { national?: number; global?: number };
+  acceptanceRate: string;
+  tuition: string | { outOfState?: string; inState?: string };
+  tags?: string[];
+  description: string;
+}
+
+interface CollegeData {
+  title?: string;
+  heading?: string;
+  platformName?: string;
+  subtitle?: string;
+  description?: string;
+  tagline?: string;
+  colleges?: College[];
+  universities?: College[];
+  schools?: College[];
+  institutions?: College[];
+}
+
+const sampleData: CollegeData = {
   title: "Find Your Dream College",
   subtitle: "Discover the perfect university to launch your future",
   colleges: [
@@ -16,22 +40,22 @@ const sampleData = {
   ]
 };
 
-export default function CollegeDiscovery({ data }) {
+export default function CollegeDiscovery({ data }: { data?: CollegeData }) {
   const safeData = data || sampleData;
   const [searchTerm, setSearchTerm] = useState("");
-  const [savedColleges, setSavedColleges] = useState(new Set());
-  const [selectedCollege, setSelectedCollege] = useState(null);
+  const [savedColleges, setSavedColleges] = useState<Set<string>>(new Set());
+  const [selectedCollege, setSelectedCollege] = useState<College | null>(null);
 
   const title = safeData.title || safeData.heading || safeData.platformName || sampleData.title;
   const subtitle = safeData.subtitle || safeData.description || safeData.tagline || sampleData.subtitle;
-  const colleges = safeData.colleges || safeData.universities || safeData.schools || safeData.institutions || sampleData.colleges;
+  const colleges = safeData.colleges || safeData.universities || safeData.schools || safeData.institutions || sampleData.colleges || [];
 
-  const filteredColleges = colleges.filter(c =>
+  const filteredColleges = colleges?.filter(c =>
     c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.location?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const toggleSave = (id, e) => {
+  const toggleSave = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const next = new Set(savedColleges);
     if (next.has(id)) next.delete(id); else next.add(id);
@@ -375,7 +399,7 @@ export default function CollegeDiscovery({ data }) {
           <div className="cd-hero-lines"></div>
           <div className="cd-hero-content">
             <div className="cd-hero-eyebrow">College Discovery Platform</div>
-            <h1 className="cd-hero-title">{title.split(' ').slice(0,3).join(' ')}<br/><em>{title.split(' ').slice(3).join(' ') || 'College'}</em></h1>
+            <h1 className="cd-hero-title">{title?.split(' ').slice(0,3).join(' ')}<br/><em>{title?.split(' ').slice(3).join(' ') || 'College'}</em></h1>
             <p className="cd-hero-subtitle">{subtitle}</p>
             <div className="cd-search-wrap">
               <div className="cd-search-inner">
@@ -404,7 +428,7 @@ export default function CollegeDiscovery({ data }) {
         <div className="cd-main">
           <div className="cd-main-header">
             <div>
-              <h2 className="cd-main-title">Top Universities <span className="cd-main-count">— {filteredColleges.length} results</span></h2>
+              <h2 className="cd-main-title">Top Universities <span className="cd-main-count">— {filteredColleges?.length} results</span></h2>
             </div>
             <div className="cd-filter-row">
               <button className="cd-filter-btn">By Rank</button>
@@ -414,7 +438,7 @@ export default function CollegeDiscovery({ data }) {
           </div>
 
           <div className="cd-grid">
-            {filteredColleges.map((college, ci) => (
+            {filteredColleges?.map((college, ci) => (
               <div key={college.id} className="cd-card" onClick={() => setSelectedCollege(college)}>
                 <div className="cd-card-img">
                   <div className="cd-card-img-pattern"></div>
@@ -477,8 +501,8 @@ export default function CollegeDiscovery({ data }) {
                   <div className="cd-modal-stats-card">
                     <div className="cd-modal-stats-title">Quick Stats</div>
                     {[['Acceptance Rate', selectedCollege.acceptanceRate], ['Annual Tuition', selectedCollege.tuition]].map(([l,v]) => (
-                      <div key={l} className="cd-modal-stat-row">
-                        <div className="cd-modal-stat-label">{l}</div>
+                      <div key={l as string} className="cd-modal-stat-row">
+                        <div className="cd-modal-stat-label">{l as string}</div>
                         <div className="cd-modal-stat-value">{
                           typeof v === 'object' 
                             ? (v.outOfState || v.inState || JSON.stringify(v)) 
@@ -500,7 +524,7 @@ export default function CollegeDiscovery({ data }) {
                   <button className="cd-modal-apply" onClick={() => { alert('Application started!'); setSelectedCollege(null); }}>
                     Apply Now <ChevronRight size={14} />
                   </button>
-                  <button className="cd-modal-save" onClick={e => toggleSave(selectedCollege.id, { stopPropagation: () => {} })}>
+                  <button className="cd-modal-save" onClick={e => toggleSave(selectedCollege.id, e)}>
                     <Heart size={14} fill={savedColleges.has(selectedCollege.id) ? '#EF4444' : 'none'} color={savedColleges.has(selectedCollege.id) ? '#EF4444' : '#0D1B2A'} />
                     {savedColleges.has(selectedCollege.id) ? 'Saved' : 'Save College'}
                   </button>
@@ -515,7 +539,7 @@ export default function CollegeDiscovery({ data }) {
             <div>
               <div className="cd-footer-brand">
                 <div className="cd-footer-brand-icon">🎓</div>
-                {title.split(' ').slice(0, 2).join(' ') || 'CollegeCompass'}
+                {title?.split(' ').slice(0, 2).join(' ') || 'CollegeCompass'}
               </div>
               <p className="cd-footer-desc">Empowering students to find their perfect academic match through data-driven discovery.</p>
             </div>
@@ -549,7 +573,7 @@ export default function CollegeDiscovery({ data }) {
             </div>
           </div>
           <div className="cd-footer-bottom">
-            <div>&copy; {new Date().getFullYear()} {title.split(' ')[0] || 'CollegeCompass'}. All rights reserved.</div>
+            <div>&copy; {new Date().getFullYear()} {title?.split(' ')[0] || 'CollegeCompass'}. All rights reserved.</div>
             <div className="cd-footer-social">
               <a href="#">Twitter</a>
               <a href="#">LinkedIn</a>

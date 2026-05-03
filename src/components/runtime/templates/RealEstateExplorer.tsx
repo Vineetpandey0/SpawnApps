@@ -3,7 +3,24 @@
 import React, { useState } from 'react';
 import { Search, MapPin, BedDouble, Bath, Square, Home, Phone, Heart, SlidersHorizontal, Check } from 'lucide-react';
 
-export default function RealEstateExplorer({ data }: { data: any }) {
+interface Property {
+  id: string;
+  title: string;
+  type: string;
+  price: string;
+  address: string;
+  beds: number;
+  baths: number;
+  sqft: string | number;
+  isFeatured?: boolean;
+}
+
+interface RealEstateData {
+  title?: string;
+  properties?: Property[];
+}
+
+export default function RealEstateExplorer({ data }: { data?: RealEstateData }) {
   const [activeFilter, setActiveFilter] = useState("All");
   const [savedProps, setSavedProps] = useState<Set<string>>(new Set());
   const [contacted, setContacted] = useState<Set<string>>(new Set());
@@ -14,7 +31,7 @@ export default function RealEstateExplorer({ data }: { data: any }) {
 
   const filters = ["All", "House", "Apartment", "Condo", "Villa"];
   
-  const filteredProperties = properties.filter((p: any) => 
+  const filteredProperties = properties.filter((p: Property) => 
     activeFilter === "All" || p.type?.toLowerCase() === activeFilter.toLowerCase()
   );
 
@@ -78,7 +95,7 @@ export default function RealEstateExplorer({ data }: { data: any }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {filteredProperties.map((prop: any) => (
+          {filteredProperties.map((prop: Property) => (
             <div key={prop.id} className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group">
               <div className="relative aspect-[4/3] bg-gray-200 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10 opacity-60"></div>

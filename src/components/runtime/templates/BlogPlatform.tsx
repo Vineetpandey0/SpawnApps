@@ -3,7 +3,27 @@
 import React, { useState } from 'react';
 import { BookOpen, Clock, ChevronRight, Share2, BookmarkPlus, ArrowLeft, Search, BookmarkCheck } from 'lucide-react';
 
-const sampleData = {
+interface Article {
+  id: string;
+  title: string;
+  excerpt: string;
+  author: string;
+  category: string;
+  readTime: string;
+  date: string;
+  readTimeMinutes?: number;
+  publishDate?: string | Date;
+}
+
+interface BlogData {
+  publicationName?: string;
+  platformName?: string;
+  featuredArticle?: Article;
+  featuredPosts?: Article[];
+  articles?: Article[];
+}
+
+const sampleData: BlogData = {
   publicationName: "The Daily Developer",
   featuredArticle: {
     id: "feat-1",
@@ -24,15 +44,15 @@ const sampleData = {
   ]
 };
 
-export default function BlogPlatform({ data }) {
+export default function BlogPlatform({ data }: { data?: BlogData }) {
   const safeData = data || sampleData;
-  const [activeArticle, setActiveArticle] = useState(null);
-  const [savedArticles, setSavedArticles] = useState(new Set());
+  const [activeArticle, setActiveArticle] = useState<Article | null>(null);
+  const [savedArticles, setSavedArticles] = useState<Set<string>>(new Set());
 
   const pubName = safeData.publicationName || safeData.platformName || "The Daily Developer";
   
   // Robust mapping for older hallucinated JSON formats
-  const mapArticle = (a) => {
+  const mapArticle = (a: any): Article => {
     if (!a) return a;
     return {
       ...a,
@@ -42,12 +62,12 @@ export default function BlogPlatform({ data }) {
   };
 
   const featuredArticle = mapArticle(safeData.featuredArticle || (safeData.featuredPosts && safeData.featuredPosts[0]) || sampleData.featuredArticle);
-  const articlesList = safeData.articles || (safeData.featuredPosts && safeData.featuredPosts.slice(1)) || sampleData.articles;
+  const articlesList = safeData.articles || (safeData.featuredPosts && safeData.featuredPosts.slice(1)) || sampleData.articles || [];
   const articles = articlesList.map(mapArticle);
 
   const publicationName = pubName;
 
-  const toggleSave = (id, e) => {
+  const toggleSave = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const next = new Set(savedArticles);
     if (next.has(id)) next.delete(id);
@@ -60,7 +80,7 @@ export default function BlogPlatform({ data }) {
     'AI/ML': '#b45309', JavaScript: '#0f766e', DevOps: '#be185d', default: '#374151'
   };
 
-  const getCatColor = (cat) => categoryColors[cat] || categoryColors.default;
+  const getCatColor = (cat: string) => (categoryColors as any)[cat] || categoryColors.default;
 
   return (
     <>
@@ -494,7 +514,7 @@ export default function BlogPlatform({ data }) {
               <span className="blog-view-all">View all <ChevronRight size={12} /></span>
             </div>
             <div className="blog-grid">
-              {articles.map((article, i) => (
+              {articles.map((article: any, i: number) => (
                 <article key={article.id || i} className="blog-card" onClick={() => setActiveArticle(article)}>
                   <div className="blog-card-image">
                     <div className="blog-card-image-inner"></div>

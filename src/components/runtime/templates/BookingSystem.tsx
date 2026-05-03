@@ -3,7 +3,39 @@
 import React, { useState } from 'react';
 import { Clock, Users, Star, CheckCircle, ChevronRight, UserCircle2, Calendar as CalendarIcon } from 'lucide-react';
 
-const sampleData = {
+interface Service {
+  name: string;
+  duration: string;
+  price: string | { amount?: string; value?: string; formatted?: string };
+}
+
+interface Provider {
+  name: string;
+  role: string;
+  rating: string;
+}
+
+interface BookingData {
+  serviceName?: string;
+  platformName?: string;
+  name?: string;
+  title?: string;
+  description?: string;
+  subtitle?: string;
+  about?: string;
+  services?: Service[];
+  treatments?: Service[];
+  packages?: Service[];
+  providers?: Provider[];
+  professionals?: Provider[];
+  staff?: Provider[];
+  team?: Provider[];
+  availableSlots?: string[];
+  timeSlots?: string[];
+  slots?: string[];
+}
+
+const sampleData: BookingData = {
   serviceName: "Lumière Wellness",
   description: "Indulge in our curated selection of luxury treatments. Each session is crafted to restore balance and elevate your well-being.",
   services: [
@@ -21,19 +53,19 @@ const sampleData = {
   availableSlots: ["9:00 AM", "9:45 AM", "10:30 AM", "11:15 AM", "1:00 PM", "1:45 PM", "2:30 PM", "3:15 PM", "4:00 PM", "4:45 PM"]
 };
 
-export default function BookingSystem({ data }) {
+export default function BookingSystem({ data }: { data?: BookingData }) {
   const safeData = data || sampleData;
-  const [selectedService, setSelectedService] = useState(null);
-  const [selectedProvider, setSelectedProvider] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedTime, setSelectedTime] = useState(null);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+  const [selectedDate, setSelectedDate] = useState<number | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [isBooked, setIsBooked] = useState(false);
 
   const serviceName = safeData.serviceName || safeData.platformName || safeData.name || safeData.title || sampleData.serviceName;
   const description = safeData.description || safeData.subtitle || safeData.about || sampleData.description;
-  const providers = safeData.providers || safeData.professionals || safeData.staff || safeData.team || sampleData.providers;
-  const availableSlots = safeData.availableSlots || safeData.timeSlots || safeData.slots || sampleData.availableSlots;
-  const services = safeData.services || safeData.treatments || safeData.packages || sampleData.services;
+  const providers = safeData.providers || safeData.professionals || safeData.staff || safeData.team || sampleData.providers || [];
+  const availableSlots = safeData.availableSlots || safeData.timeSlots || safeData.slots || sampleData.availableSlots || [];
+  const services = safeData.services || safeData.treatments || safeData.packages || sampleData.services || [];
 
   const days = [
     { label: 'MON', num: 5 }, { label: 'TUE', num: 6 },
@@ -407,7 +439,7 @@ export default function BookingSystem({ data }) {
                     <hr className="bk-sidebar-divider" />
                     <div className="bk-total-row">
                       <span className="bk-total-label">Total</span>
-                      <span className="bk-total-amount bk-serif">{selectedService?.price}</span>
+                      <span className="bk-total-amount bk-serif">{typeof selectedService?.price === 'object' ? ((selectedService?.price as any).amount || (selectedService?.price as any).value || (selectedService?.price as any).formatted || JSON.stringify(selectedService?.price)) : selectedService?.price}</span>
                     </div>
                     <button className="bk-confirm-btn" onClick={handleBook}>Confirm Booking</button>
                   </>
@@ -420,14 +452,14 @@ export default function BookingSystem({ data }) {
                   <div>
                     <h2 className="bk-step-title bk-serif">Select a Treatment</h2>
                     <div className="bk-service-list">
-                      {services.map((s, i) => (
+                      {services?.map((s, i) => (
                         <button key={i} className="bk-service-item" onClick={() => setSelectedService(s)}>
                           <div>
                             <div className="bk-service-name">{s.name}</div>
                             <div className="bk-service-duration"><Clock size={13} /> {s.duration}</div>
                           </div>
                           <div style={{display:'flex',alignItems:'center'}}>
-                            <span className="bk-service-price bk-serif">{s.price}</span>
+                            <span className="bk-service-price bk-serif">{typeof s.price === 'object' ? ((s.price as any).amount || (s.price as any).value || (s.price as any).formatted || JSON.stringify(s.price)) : s.price}</span>
                             <ChevronRight size={18} className="bk-chevron" />
                           </div>
                         </button>
@@ -443,7 +475,7 @@ export default function BookingSystem({ data }) {
                     </button>
                     <h2 className="bk-step-title bk-serif">Choose Your Practitioner</h2>
                     <div className="bk-provider-grid">
-                      {providers.map((p, i) => (
+                      {providers?.map((p, i) => (
                         <button key={i} className="bk-provider-card" onClick={() => setSelectedProvider(p)}>
                           <div className="bk-provider-avatar"><UserCircle2 size={32} /></div>
                           <div className="bk-provider-name">{p.name}</div>
@@ -484,7 +516,7 @@ export default function BookingSystem({ data }) {
                     <div className={!selectedDate ? 'bk-opacity-40' : ''}>
                       <div className="bk-time-section-label">Available Times</div>
                       <div className="bk-time-grid">
-                        {availableSlots.map((slot, i) => (
+                        {availableSlots?.map((slot, i) => (
                           <button
                             key={i}
                             className={`bk-time-btn ${selectedTime === slot ? 'selected' : ''}`}

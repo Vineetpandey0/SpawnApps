@@ -4,7 +4,21 @@ import React, { useState } from 'react';
 import { Mail, ArrowUpRight, Code2, Layout, Database } from 'lucide-react';
 import { FaGithub, FaTwitter } from 'react-icons/fa';
 
-export default function PortfolioGallery({ data }: { data: any }) {
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  technologies?: string[];
+}
+
+interface PortfolioData {
+  authorName?: string;
+  bio?: string;
+  projects?: Project[];
+}
+
+export default function PortfolioGallery({ data }: { data?: PortfolioData }) {
   const [activeFilter, setActiveFilter] = useState("All");
 
   if (!data) return <div className="p-8">Loading portfolio...</div>;
@@ -12,9 +26,9 @@ export default function PortfolioGallery({ data }: { data: any }) {
   const { authorName = "Developer", bio, projects = [] } = data;
 
   // Extract unique categories from projects
-  const categories = ["All", ...Array.from(new Set(projects.map((p: any) => p.category).filter(Boolean)))];
+  const categories = ["All", ...Array.from(new Set(projects.map((p: Project) => p.category).filter(Boolean)))];
 
-  const filteredProjects = projects.filter((p: any) => 
+  const filteredProjects = projects.filter((p: Project) => 
     activeFilter === "All" || p.category === activeFilter
   );
 
@@ -55,10 +69,10 @@ export default function PortfolioGallery({ data }: { data: any }) {
           <h2 className="text-2xl font-bold">Selected Work</h2>
           
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map((cat: any, i) => (
+            {categories.map((cat, i) => (
               <button 
                 key={i}
-                onClick={() => setActiveFilter(cat)}
+                onClick={() => setActiveFilter(cat as string)}
                 className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${activeFilter === cat ? 'bg-zinc-100 text-black' : 'bg-transparent border border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200'}`}
               >
                 {cat}
@@ -68,7 +82,7 @@ export default function PortfolioGallery({ data }: { data: any }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10">
-          {filteredProjects.map((project: any, i: number) => (
+          {filteredProjects.map((project: Project, i: number) => (
             <div 
               key={project.id} 
               className="group flex flex-col"
