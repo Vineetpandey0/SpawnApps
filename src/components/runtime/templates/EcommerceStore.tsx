@@ -106,7 +106,7 @@ export default function EcommerceStore({ data }: { data?: EcommerceData }) {
         /* Navbar */
         .ec-nav {
           background: #FAFAFA; border-bottom: 1px solid #E8E8E8;
-          height: 64px; position: sticky; top: 0; z-index: 50;
+          height: 64px; position: sticky; top: 0;
         }
         .ec-nav-inner {
           max-width: 1400px; margin: 0 auto; padding: 0 40px; h-full;
