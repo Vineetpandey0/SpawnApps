@@ -69,7 +69,7 @@ function AnimatedHeadline() {
   });
 
   return (
-    <h1 className="text-center mt-10 font-black tracking-tight leading-[1.06] text-gray-950"
+    <h1 className="text-center sm:mt-0 mt-10 font-black tracking-tight leading-[1.06] text-gray-950"
       style={{ fontSize: "clamp(2.8rem, 8vw, 5.5rem)", letterSpacing: "-0.04em", maxWidth: 820 }}>
       <span className="block">
         {words.map((w, i) => (
