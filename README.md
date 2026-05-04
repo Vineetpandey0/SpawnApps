@@ -103,9 +103,9 @@ The runtime engine selects and populates one of the following premium templates 
 ## 🔄 How It Works
 
 ```
-User Prompt
-    │
-    ▼
+             User Prompt
+                   │
+                   ▼
 ┌─────────────────────────────────────────┐
 │         Prompt Engineering Layer        │
 │   Formats user input into a structured  │
@@ -114,24 +114,9 @@ User Prompt
                    │
                    ▼
 ┌─────────────────────────────────────────┐
-│        Google Gemini 2.5 Flash          │
-│   Outputs a strictly typed JSON config  │
-│   (pages array, types, entities, meta)  │
-└──────────────────┬──────────────────────┘
-                   │
-                   ▼
-┌─────────────────────────────────────────┐
 │         Config Validation & Cache       │
 │  Validates schema, stores in Postgres   │
 │  via Prisma. Cache hit → skip AI call   │
-└──────────────────┬──────────────────────┘
-                   │
-                   ▼
-┌─────────────────────────────────────────┐
-│            AppRenderer                  │
-│  Intercepts /apps/[appId] routes,       │
-│  resolves page `type` → Component via   │
-│  the Component Registry                 │
 └──────────────────┬──────────────────────┘
                    │
                    ▼
